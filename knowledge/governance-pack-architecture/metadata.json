@@ -1,0 +1,6 @@
+{
+  "title": "Agent Governance Pack Architecture",
+  "summary": "Overview of how the canonical governance docs are synced to tool-specific shims.",
+  "tags": ["architecture", "governance", "automation"],
+  "created_at": "2026-02-14"
+}

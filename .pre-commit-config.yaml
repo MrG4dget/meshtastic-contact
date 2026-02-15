@@ -1,0 +1,34 @@
+# Pre-commit configuration
+# https://pre-commit.com/
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: sync-shims
+        name: Sync Agent Shims
+        entry: python3 scripts/agents/sync_shims.py
+        language: system
+        files: ^(AGENTS\.md|docs/agents/.*|\.agents/skills/.*|scripts/agents/.*)$
+        pass_filenames: false
+
+      - id: validate-agent-assets
+        name: Validate Agent Assets
+        entry: python3 ci/validate_agent_assets.py
+        language: system
+        files: ^(AGENTS\.md|docs/agents/.*|\.agents/skills/.*|\.claude/.*|\.gemini/.*|\.agent/.*|\.cursor/.*)$
+        pass_filenames: false

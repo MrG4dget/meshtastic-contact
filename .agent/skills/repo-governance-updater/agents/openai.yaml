@@ -1,0 +1,7 @@
+# Optional Codex metadata for progressive disclosure.
+# Codex reads SKILL.md front matter and may read this file when available.
+version: 1
+tags:
+  - governance
+  - docs
+  - skills

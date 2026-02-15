@@ -1,0 +1,58 @@
+# Ruff configuration file
+# https://beta.ruff.rs/docs/configuration/
+
+line-length = 120
+target-version = "py311"
+
+[lint]
+# Enable Pyflakes (F) and a subset of the pycodestyle (E) codes by default.
+# Also enable:
+# - B: flake8-bugbear (common bugs/pitfalls)
+# - I: isort (import sorting)
+# - N: pep8-naming
+# - PL: Pylint
+# - UP: pyupgrade (modern Python syntax)
+select = [
+    "E4", "E7", "E9", "F", "B", "I", "N", "PL", "UP"
+]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
