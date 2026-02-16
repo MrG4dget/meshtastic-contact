@@ -23,8 +23,10 @@ import traceback
 # Third-party
 from pubsub import pub
 
-# Local application
 import contact.ui.default_config as config
+
+# Local application
+# Local application
 from contact.message_handlers.rx_handler import on_receive
 from contact.settings import set_region
 from contact.ui.colors import setup_colors
