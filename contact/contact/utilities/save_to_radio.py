@@ -136,7 +136,7 @@ def save_changes(interface, modified_settings, menu_state):  # noqa: PLR0915, PL
                 field = getattr(config_subcategory, config_item)
 
                 try:
-                    if isinstance(field, int | float | str | bool):  # Direct field types
+                    if isinstance(field, (int, float, str, bool)):  # Direct field types
                         setattr(config_subcategory, config_item, new_value)
                         logging.info(f"Updated {config_category}.{config_item} to {new_value}")
                     elif isinstance(field, Message):  # Handle protobuf sub-messages

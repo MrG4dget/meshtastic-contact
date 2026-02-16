@@ -1,7 +1,7 @@
 import base64
 import logging
 from collections import OrderedDict
-from typing import Any
+from typing import Any, Optional, Union
 
 from google.protobuf.message import Message
 from meshtastic.protobuf import channel_pb2, config_pb2, module_config_pb2
@@ -14,7 +14,9 @@ def encode_if_bytes(value: Any) -> str:
     return value
 
 
-def extract_fields(message_instance: Message, current_config: Message | dict[str, Any] | None = None) -> dict[str, Any]:
+def extract_fields(
+    message_instance: Message, current_config: Optional[Union[Message, dict[str, Any]]] = None
+) -> dict[str, Any]:
     if isinstance(current_config, dict):  # Handle dictionaries
         return {key: (None, encode_if_bytes(current_config.get(key, "Not Set"))) for key in current_config}
 

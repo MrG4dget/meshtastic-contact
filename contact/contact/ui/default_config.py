@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import tempfile
+from typing import Optional
 
 from contact.ui.colors import setup_colors
 
@@ -67,7 +68,7 @@ node_configs_file_path = os.path.join(config_root, "node-configs/")
 localisations_dir = os.path.join(parent_dir, "localisations")
 
 
-def get_localisation_options(localisations_path: str | None = None) -> list[str]:
+def get_localisation_options(localisations_path: Optional[str] = None) -> list[str]:
     """
     Return available localisation codes from the localisations folder.
     """
@@ -84,7 +85,7 @@ def get_localisation_options(localisations_path: str | None = None) -> list[str]
     return sorted(options)
 
 
-def get_localisation_file(language: str, localisations_path: str | None = None) -> str:
+def get_localisation_file(language: str, localisations_path: Optional[str] = None) -> str:
     """
     Return a valid localisation file path, falling back to a default when missing.
     """

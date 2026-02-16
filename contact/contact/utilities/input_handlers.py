@@ -2,6 +2,7 @@ import base64
 import binascii
 import curses
 import ipaddress
+from typing import Optional
 
 from contact.ui.colors import get_color
 from contact.ui.dialog import dialog
@@ -25,7 +26,7 @@ def get_dialog_width() -> int:
         return MAX_DIALOG_WIDTH
 
 
-def invalid_input(window: curses.window, message: str, redraw_func: callable | None = None) -> None:
+def invalid_input(window: curses.window, message: str, redraw_func: Optional[callable] = None) -> None:
     """Displays an invalid input message in the given window and redraws if needed."""
     cursor_y, cursor_x = window.getyx()
     curses.curs_set(0)
@@ -38,7 +39,7 @@ def invalid_input(window: curses.window, message: str, redraw_func: callable | N
     curses.curs_set(1)
 
 
-def get_text_input(prompt: str, selected_config: str, input_type: str) -> str | None:  # noqa: PLR0915, PLR0912
+def get_text_input(prompt: str, selected_config: str, input_type: str) -> Optional[str]:  # noqa: PLR0915, PLR0912
     """Handles user input with wrapped text for long prompts."""
 
     def redraw_input_win():

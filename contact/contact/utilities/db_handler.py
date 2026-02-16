@@ -2,6 +2,7 @@ import logging
 import sqlite3
 import time
 from datetime import datetime
+from typing import Optional, Union
 
 import contact.ui.default_config as config
 from contact.utilities.singleton import interface_state, ui_state
@@ -15,7 +16,7 @@ def get_table_name(channel: str) -> str:
     return quoted_table_name
 
 
-def save_message_to_db(channel: str, user_id: str, message_text: str) -> int | None:
+def save_message_to_db(channel: str, user_id: str, message_text: str) -> Optional[int]:
     """Save messages to the database, ensuring the table exists."""
     try:
         quoted_table_name = get_table_name(channel)
@@ -212,14 +213,14 @@ def maybe_store_nodeinfo_in_db(packet: dict[str, object]) -> None:
 
 
 def update_node_info_in_db(  # noqa: PLR0913
-    user_id: int | str,
-    long_name: str | None = None,
-    short_name: str | None = None,
-    hw_model: str | None = None,
-    is_licensed: str | int | None = None,
-    role: str | None = None,
-    public_key: str | None = None,
-    chat_archived: int | None = None,
+    user_id: Union[int, str],
+    long_name: Optional[str] = None,
+    short_name: Optional[str] = None,
+    hw_model: Optional[str] = None,
+    is_licensed: Optional[Union[str, int]] = None,
+    role: Optional[str] = None,
+    public_key: Optional[str] = None,
+    chat_archived: Optional[int] = None,
 ) -> None:
     """Update or insert node information into the database, preserving unchanged fields."""
     try:

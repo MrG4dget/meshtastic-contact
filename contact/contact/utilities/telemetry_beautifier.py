@@ -69,19 +69,17 @@ def get_chunks(data):
             except Exception:
                 pass
 
-        match key:
-            # convert seconds to hours, for our sanity
-            case "uptime_seconds":
-                value = round(value / 60 / 60, 1)
-            # Convert position to degrees (humanize), as per Meshtastic protobuf comment for this telemetry
-            # truncate to 6th digit after floating point, which would be still accurate
-            case "longitude_i" | "latitude_i":
-                value = round(value * 1e-7, 6)
-            # Convert wind direction from degrees to abbreviation
-            case "wind_direction":
-                value = humanize_wind_direction(value)
-            case "time":
-                value = datetime.datetime.fromtimestamp(int(value)).strftime("%d.%m.%Y %H:%m")
+        if key == "uptime_seconds":
+            value = round(value / 60 / 60, 1)
+        # Convert position to degrees (humanize), as per Meshtastic protobuf comment for this telemetry
+        # truncate to 6th digit after floating point, which would be still accurate
+        elif key in ("longitude_i", "latitude_i"):
+            value = round(value * 1e-7, 6)
+        # Convert wind direction from degrees to abbreviation
+        elif key == "wind_direction":
+            value = humanize_wind_direction(value)
+        elif key == "time":
+            value = datetime.datetime.fromtimestamp(int(value)).strftime("%d.%m.%Y %H:%m")
 
         if key in sensors:
             parsed += f"{sensors[key.strip()]['icon']}{value}{sensors[key]['unit']}  "

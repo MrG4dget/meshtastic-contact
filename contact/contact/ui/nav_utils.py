@@ -1,6 +1,6 @@
 import curses
 import re
-from typing import Any
+from typing import Any, Optional
 from unicodedata import east_asian_width
 
 from contact.ui.colors import get_color
@@ -168,7 +168,7 @@ def update_help_window(  # noqa: PLR0913
     help_win: object,  # curses window or None
     help_text: dict[str, str],
     transformed_path: list[str],
-    selected_option: str | None,
+    selected_option: Optional[str],
     max_help_lines: int,
     width: int,
     help_y: int,
@@ -232,7 +232,7 @@ def update_help_window(  # noqa: PLR0913
 
 
 def get_wrapped_help_text(
-    help_text: dict[str, str], transformed_path: list[str], selected_option: str | None, width: int, max_lines: int
+    help_text: dict[str, str], transformed_path: list[str], selected_option: Optional[str], width: int, max_lines: int
 ) -> list[WrappedLine]:
     """Fetches and formats help text for display, ensuring it fits within the allowed lines."""
 
