@@ -5,10 +5,10 @@
 - [x] Task: Create initial test directory structure and `conftest.py` with necessary fixtures 6f06d88
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Test Infrastructure Setup' (Protocol in workflow.md)
 
-## Phase 2: Unit Tests for db_handler.py
+## Phase 2: Unit Tests for db_handler.py [checkpoint: 72d9cab]
 - [x] Task: Write unit tests for `db_handler.py` covering `init_nodedb` and `save_message_to_db` 6165e66
 - [x] Task: Write unit tests for `db_handler.py` covering node info updates and name retrieval abde011
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Unit Tests for db_handler.py' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Unit Tests for db_handler.py' (Protocol in workflow.md)
 
 ## Phase 3: Unit Tests for utils.py
 - [ ] Task: Write unit tests for `utils.py` channel and node list processing
