@@ -5,7 +5,7 @@ import shutil
 import subprocess
 import threading
 import time
-from typing import Any
+from typing import Any, Optional
 
 import contact.ui.default_config as config
 from contact.ui.contact_ui import (
@@ -29,7 +29,7 @@ from contact.utilities.utils import (
 
 # Debounce notification sounds so a burst of queued messages only plays once.
 _SOUND_DEBOUNCE_SECONDS = 0.8
-_sound_timer: threading.Timer | None = None
+_sound_timer: Optional[threading.Timer] = None
 _sound_timer_lock = threading.Lock()
 _last_sound_request = 0.0
 

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import contact.ui.default_config as config
 from contact.utilities.ini_utils import parse_ini_file
 
@@ -16,7 +18,7 @@ def _load_translations() -> None:
     _language = language
 
 
-def t(key: str, default: str | None = None, **kwargs: object) -> str:
+def t(key: str, default: Optional[str] = None, **kwargs: object) -> str:
     _load_translations()
     text = _translations.get(key, default if default is not None else key)
     try:

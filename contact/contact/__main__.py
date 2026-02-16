@@ -152,10 +152,12 @@ def start() -> None:
 
     try:
         curses.wrapper(main)
-        interface_state.interface.close()
+        if interface_state.interface:
+            interface_state.interface.close()
     except KeyboardInterrupt:
         logging.info("User exited with Ctrl+C")
-        interface_state.interface.close()
+        if interface_state.interface:
+            interface_state.interface.close()
         sys.exit(0)
     except Exception as e:
         logging.critical("Fatal error", exc_info=True)

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from contact.utilities import i18n
 
 
@@ -10,7 +12,7 @@ def parse_ini_file(ini_file_path: str) -> tuple[dict[str, str], dict[str, str]]:
 
     field_mapping: dict[str, str] = {}
     help_text: dict[str, str] = {}
-    current_section: str | None = None
+    current_section: Optional[str] = None
 
     with open(ini_file_path, encoding="utf-8") as f:
         for raw_line in f:

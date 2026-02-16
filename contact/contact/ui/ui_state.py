@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Union
 
 
 @dataclass
@@ -7,7 +7,7 @@ class MenuState:
     menu_index: list[int] = field(default_factory=list)
     start_index: list[int] = field(default_factory=lambda: [0])
     selected_index: int = 0
-    current_menu: dict[str, Any] | list[Any] | str | int = field(default_factory=dict)
+    current_menu: Union[dict[str, Any], list[Any], str, int] = field(default_factory=dict)
     menu_path: list[str] = field(default_factory=list)
     show_save_option: bool = False
     need_redraw: bool = False

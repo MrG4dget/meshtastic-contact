@@ -1,5 +1,6 @@
 import datetime
 import time
+from typing import Union
 
 from google.protobuf.message import DecodeError
 from meshtastic import protocols
@@ -179,7 +180,7 @@ def add_new_message(channel_id, prefix, message):
     ui_state.all_messages[channel_id].append((f"{ts_str}{prefix}", message))
 
 
-def parse_protobuf(packet: dict) -> str | dict:  # noqa: PLR0911, PLR0912
+def parse_protobuf(packet: dict) -> Union[str, dict]:  # noqa: PLR0911, PLR0912
     """Attempt to parse a decoded payload using the registered protobuf handler."""
     if not packet:
         return None

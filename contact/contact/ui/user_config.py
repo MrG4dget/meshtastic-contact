@@ -1,7 +1,7 @@
 import curses
 import json
 import os
-from typing import Any
+from typing import Any, Optional
 
 import contact.ui.default_config as config
 from contact.ui.colors import COLOR_MAP, get_color, setup_colors
@@ -19,7 +19,7 @@ field_mapping, help_text = parse_ini_file(translation_file)
 translation_language = config.language
 
 
-def reload_translations(language: str | None = None) -> None:
+def reload_translations(language: Optional[str] = None) -> None:
     global translation_file, field_mapping, help_text, translation_language  # noqa: PLW0603
     target_language = language or config.language
     translation_file = config.get_localisation_file(target_language)
@@ -486,7 +486,7 @@ def json_editor(stdscr: curses.window, menu_state: Any) -> None:  # noqa: PLR091
                     if new_value != old:
                         made_changes = True
 
-                elif isinstance(selected_data, dict | list):
+                elif isinstance(selected_data, (dict, list)):
                     # Navigate into nested data
                     menu_state.current_menu = selected_data
                     menu_state.selected_index = 0  # Reset the selected index
