@@ -12,7 +12,7 @@ This repo also includes **tool-specific shims** so Codex, Claude Code, Gemini CL
 
 ## Tool entrypoints (what reads what)
 
-- **OpenAI Codex**: reads `AGENTS.md` (cascades by directory; nearest file wins).  
+- **OpenAI Codex**: reads `AGENTS.md` (cascades by directory; nearest file wins).
 - **Claude Code**: reads `CLAUDE.md` (project memory) in either `./CLAUDE.md` or `./.claude/CLAUDE.md`.
 - **Gemini CLI**: reads `.gemini/GEMINI.md` (supports `@` imports).
 - **Google Antigravity IDE**: reads workspace rules in `.agent/rules/` and can use `.agent/skills/`.
@@ -85,3 +85,4 @@ See `docs/agents/TOOLING.md` for linkable, up-to-date pointers to each tool’s 
 - **OpenCode Orchestrator**: [.agents/skills/opencode-orchestrator/SKILL.md](.agents/skills/opencode-orchestrator/SKILL.md) (Coordinates multi-model tasks).
 - **Shared Knowledge**: Check `knowledge/` for architectural insights.
 - [KI: Governance Architecture](knowledge/governance-pack-architecture/artifact.md)
+- [KI: Meshtastic Contact Project Mission](knowledge/meshtastic-contact-project-mission/artifact.md)

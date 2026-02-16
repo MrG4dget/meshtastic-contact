@@ -98,10 +98,13 @@ def _validate_canonical_paths() -> bool:
         REPO_ROOT / "AGENTS.md",
         REPO_ROOT / "docs" / "agents" / "GOVERNANCE.md",
         REPO_ROOT / "docs" / "agents" / "TOOLING.md",
+        REPO_ROOT / "docs" / "agents" / "KNOWLEDGE_SUBAGENT.md",
+        REPO_ROOT / "schemas" / "skill-manifest.schema.json",
         REPO_ROOT / ".agents" / "skills",
         REPO_ROOT / ".agents" / "workflows",
         REPO_ROOT / "scripts" / "agents" / "sync_shims.py",
         REPO_ROOT / "scripts" / "agents" / "generate_cursor_rule.py",
+        REPO_ROOT / "scripts" / "agents" / "opencode.py",
     ]
     for p in required_paths:
         if not p.exists():
@@ -132,8 +135,6 @@ def _validate_workflows() -> bool:
                 if "description" not in fm or not fm.get("description", "").strip():
                     fail(f"{child}: missing or empty frontmatter key 'description'")
                     ok = False
-    return ok
-
     return ok
 
 
@@ -171,6 +172,19 @@ def _validate_shims() -> bool:
             if "workflows" not in str(p) and "AUTO-GENERATED" not in content:
                 fail(f"{p}: shim missing 'AUTO-GENERATED' warning")
                 ok = False
+
+    # Check for stray files in Antigravity shims
+    for shim_dir, source_dir in [
+        (REPO_ROOT / ".agent" / "workflows", REPO_ROOT / ".agents" / "workflows"),
+        (REPO_ROOT / ".agent" / "skills", REPO_ROOT / ".agents" / "skills"),
+    ]:
+        if shim_dir.exists():
+            for child in shim_dir.iterdir():
+                if child.name == "validate-agent-assets.md":
+                    continue
+                if not (source_dir / child.name).exists():
+                    fail(f"stray file in shim directory: {child} (not in canonical source)")
+                    ok = False
 
     gemini_md = REPO_ROOT / ".gemini" / "GEMINI.md"
     if gemini_md.exists():

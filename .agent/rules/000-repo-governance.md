@@ -12,5 +12,9 @@ Follow the canonical instructions in `AGENTS.md`.
 ## Non-negotiables
 - Edit canonical sources only (`AGENTS.md`, `docs/agents/**`, `.agents/skills/**`).
 - Regenerate shims after governance/skill changes: `python scripts/agents/sync_shims.py`.
-- Validate: `python ci/validate_agent_assets.py`.
+- Validate changes: `python ci/validate_agent_assets.py`.
 
+## Proactive Maintenance
+- **Knowledge**: Check `knowledge/` for context before starting. Maintain KIs for new insights per `docs/agents/KNOWLEDGE_SUBAGENT.md`.
+- **Workflows**: Use `.agent/workflows/` for standard tasks (e.g., `validate-agent-assets.md` for CI).
+- **Documentation**: Sync `docs/agents/` if governance, skills, or shims are modified.

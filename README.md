@@ -1,6 +1,28 @@
-# Agent Governance Pack (multi-tool)
+# Meshtastic Contact
 
-This repo is a **portable governance + skill pack** that keeps one canonical source of truth (`AGENTS.md` + `docs/agents/` + `.agents/skills/`) and generates shims for:
+Meshtastic Contact is a specialized toolset and governance pack designed to **improve the remote management of Meshtastic nodes**.
+
+This project provides:
+
+- **Enhanced Remote Management**: Streamlined workflows for interacting with and managing Meshtastic devices over various transport layers.
+- **Pedigree**: Built upon the foundational work from [pdxlocations/contact](https://github.com/pdxlocations/contact).
+- **Custom Protobuf Support**: Natively supports the custom Meshtastic protobuf definitions required by the [MrG4dget firmware (t1000-e-btn branch)](https://github.com/MrG4dget/firmware/tree/t1000-e-btn/protobufs).
+
+---
+
+## Agent Governance & Development
+
+This repository uses a **portable governance + skill pack** to ensure consistent behavior across different AI coding assistants.
+
+### Governance Architecture
+
+- **Canonical Source**: [AGENTS.md](file:///c:/Users/Tomer/Documents/meshtastic-contact/AGENTS.md) contains the main instructions.
+- **Detailed Docs**: [docs/agents/](file:///c:/Users/Tomer/Documents/meshtastic-contact/docs/agents/)
+- **Skills**: [.agents/skills/](file:///c:/Users/Tomer/Documents/meshtastic-contact/.agents/skills/)
+
+### Tool Shims
+
+Shims are automatically generated for:
 
 - OpenAI Codex
 - Claude Code
@@ -8,43 +30,11 @@ This repo is a **portable governance + skill pack** that keeps one canonical sou
 - Google Antigravity IDE
 - Cursor
 
-## How to use
+### Development Workflow
 
-## Quick Start
+1. **Sync Shims**: If you modify governance or skills, run `python scripts/agents/sync_shims.py`.
+2. **Validate**: `python ci/validate_agent_assets.py`
+3. **Test**: `pytest`
+4. **Lint/Format**: `ruff check --fix` and `ruff format`
 
-1. **GitHub Template**: Click "Use this template" on GitHub to create a new repository from this one.
-   - *Alternative*: Clone/copy these files into the root of your target repository.
-
-2. Run the setup script to install tools and configure hooks:
-
-   ```bash
-   bash scripts/setup.sh
-   ```
-
-3. Commit the generated shims.
-4. Add/maintain skills under `.agents/skills/<skill-name>/`.
-
-## Development
-
-- **Sync Shims**: `python scripts/agents/sync_shims.py`
-- **Validate**: `python ci/validate_agent_assets.py`
-- **Test**: `pytest`
-- **Lint/Format**: `ruff check --fix` and `ruff format`
-
-These checks are also enforced via `pre-commit` and GitHub Actions.
-
-## Validation
-
-- Local: `python ci/validate_agent_assets.py`
-- CI: `.github/workflows/validate-agent-assets.yml`
-
-- `AGENTS.md` and `docs/agents/**`
-- `.agents/skills/**`
-- `scripts/agents/**`, `ci/**`, `schemas/**`
-
-## Frontier Orchestration (OpenCode)
-
-- **Architecture**: [MODEL_SELECTION.md](docs/agents/opencode/MODEL_SELECTION.md)
-- **Setup**: [SETUP.md](docs/agents/opencode/SETUP.md)
-
-Do **not** hand-edit shim folders; regenerate via `sync_shims.py`.
+Do **not** hand-edit the `.claude/`, `.gemini/`, `.agent/`, or `.cursor/` folders directly.
