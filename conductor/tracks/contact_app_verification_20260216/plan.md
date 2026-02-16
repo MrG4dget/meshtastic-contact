@@ -4,7 +4,7 @@
 Verify that the hardware is recognized and the basic application loop can start.
 
 - [x] Task: Hardware Presence Check - Ensure a Meshtastic node is connected and accessible via serial/USB. 051d533
-- [ ] Task: Application Boot - Start the `contact` app and verify the splash screen and initial UI state.
+- [x] Task: Application Boot - Start the `contact` app and verify the splash screen and initial UI state. a67ff91
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Environment & Connectivity Baseline' (Protocol in workflow.md)
 
 ## Phase 2: TUI Navigation & Stability
