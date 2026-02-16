@@ -1,11 +1,11 @@
 # Plan - Contact App Verification (Hardware)
 
-## Phase 1: Environment & Connectivity Baseline
+## Phase 1: Environment & Connectivity Baseline [checkpoint: 7d7b1cd]
 Verify that the hardware is recognized and the basic application loop can start.
 
 - [x] Task: Hardware Presence Check - Ensure a Meshtastic node is connected and accessible via serial/USB. 051d533
 - [x] Task: Application Boot - Start the `contact` app and verify the splash screen and initial UI state. a67ff91
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Environment & Connectivity Baseline' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Environment & Connectivity Baseline' (Protocol in workflow.md)
 
 ## Phase 2: TUI Navigation & Stability
 Navigate the interface to ensure all views are functional and responsive.
