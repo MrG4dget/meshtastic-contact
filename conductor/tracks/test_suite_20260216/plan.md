@@ -7,7 +7,7 @@
 
 ## Phase 2: Unit Tests for db_handler.py
 - [x] Task: Write unit tests for `db_handler.py` covering `init_nodedb` and `save_message_to_db` 6165e66
-- [ ] Task: Write unit tests for `db_handler.py` covering node info updates and name retrieval
+- [x] Task: Write unit tests for `db_handler.py` covering node info updates and name retrieval abde011
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Unit Tests for db_handler.py' (Protocol in workflow.md)
 
 ## Phase 3: Unit Tests for utils.py
