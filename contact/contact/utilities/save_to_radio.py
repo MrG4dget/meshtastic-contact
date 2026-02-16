@@ -6,7 +6,7 @@ from google.protobuf.message import Message
 from meshtastic.protobuf import channel_pb2
 
 
-def save_changes(interface, modified_settings, menu_state):
+def save_changes(interface, modified_settings, menu_state):  # noqa: PLR0915, PLR0912
     """
     Save changes to the device based on modified settings.
     :param interface: Meshtastic interface instance
@@ -123,7 +123,7 @@ def save_changes(interface, modified_settings, menu_state):
             logging.warning(f"Config category '{config_category}' not found in config.")
             return
 
-        if len(menu_state.menu_path) >= 4:
+        if len(menu_state.menu_path) >= 4:  # noqa: PLR2004
             nested_key = menu_state.menu_path[3]
             if hasattr(config_container, nested_key):
                 config_container = getattr(config_container, nested_key)
@@ -136,7 +136,7 @@ def save_changes(interface, modified_settings, menu_state):
                 field = getattr(config_subcategory, config_item)
 
                 try:
-                    if isinstance(field, (int, float, str, bool)):  # Direct field types
+                    if isinstance(field, int | float | str | bool):  # Direct field types
                         setattr(config_subcategory, config_item, new_value)
                         logging.info(f"Updated {config_category}.{config_item} to {new_value}")
                     elif isinstance(field, Message):  # Handle protobuf sub-messages

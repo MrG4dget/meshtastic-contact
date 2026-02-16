@@ -5,7 +5,7 @@ import meshtastic.serial_interface
 import meshtastic.tcp_interface
 
 
-def initialize_interface(args):
+def initialize_interface(args):  # noqa: PLR0912
     try:
         if args.ble:
             return meshtastic.ble_interface.BLEInterface(args.ble if args.ble != "any" else None)

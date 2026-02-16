@@ -63,7 +63,12 @@ If you modify:
 
 …then update the relevant docs in `docs/agents/` in the same PR.
 
-### 4) Skill authoring rules
+### 4) Shim sync rule
+
+- If you modify canonical sources (`AGENTS.md`, `docs/agents/**`, `.agents/skills/**`, `.agents/workflows/**`), you MUST run `python scripts/agents/sync_shims.py`.
+- **Windows Users**: On Windows, shims are mirrored via copying. Prompt the user to run the sync script if you cannot run it yourself, as changes won't be visible to the IDE otherwise.
+
+## Skill authoring rules
 
 - A skill is a folder with **exactly one** `SKILL.md` containing YAML front matter with:
   - `name`

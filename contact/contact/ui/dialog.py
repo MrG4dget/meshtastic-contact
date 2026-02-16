@@ -6,7 +6,7 @@ from contact.utilities.i18n import t_text
 from contact.utilities.singleton import menu_state, ui_state
 
 
-def dialog(title: str, message: str) -> None:
+def dialog(title: str, message: str) -> None:  # noqa: PLR0912, PLR0915
     title = t_text(title)
     message = t_text(message)
     """Display a dialog with a title and message."""
@@ -19,7 +19,7 @@ def dialog(title: str, message: str) -> None:
 
     # Parse message into lines and calculate dimensions
     message_lines = message.splitlines() or [""]
-    max_line_length = max(len(l) for l in message_lines)
+    max_line_length = max(len(line_) for line_ in message_lines)
 
     # Desired size
     dialog_width = max(len(title) + 4, max_line_length + 4)
@@ -37,7 +37,7 @@ def dialog(title: str, message: str) -> None:
     # Ensure we have a start index slot for this dialog window id (4)
     # ui_state.start_index is used by draw_main_arrows()
     try:
-        while len(ui_state.start_index) <= 4:
+        while len(ui_state.start_index) <= 4:  # noqa: PLR2004
             ui_state.start_index.append(0)
     except Exception:
         # If start_index isn't list-like, fall back to an attribute

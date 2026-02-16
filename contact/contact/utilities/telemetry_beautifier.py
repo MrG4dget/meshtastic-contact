@@ -22,7 +22,7 @@ sensors = {
 
 def humanize_wind_direction(degrees):
     """Convert degrees to Eest-West-Nnoth-Ssouth directions"""
-    if not 0 <= degrees <= 360:
+    if not 0 <= degrees <= 360:  # noqa: PLR2004
         return None
 
     directions = [
@@ -67,8 +67,7 @@ def get_chunks(data):
             try:
                 value = int(value.strip())
             except Exception:
-                # Leave it string as last resort
-                value = value
+                pass
 
         match key:
             # convert seconds to hours, for our sanity

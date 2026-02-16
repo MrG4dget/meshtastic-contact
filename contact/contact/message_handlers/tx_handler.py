@@ -6,6 +6,7 @@ from meshtastic import BROADCAST_NUM
 from meshtastic.protobuf import mesh_pb2, portnums_pb2
 
 import contact.ui.default_config as config
+from contact.ui.contact_ui import add_notification, draw_channel_list, draw_messages_window
 from contact.utilities.db_handler import (
     get_name_from_database,
     is_chat_archived,
@@ -21,11 +22,10 @@ ack_naks: dict[str, dict[str, Any]] = {}  # requestId -> {channel, messageIndex,
 
 # Note "onAckNak" has special meaning to the API, thus the nonstandard naming convention
 # See https://github.com/meshtastic/python/blob/master/meshtastic/mesh_interface.py#L462
-def onAckNak(packet: dict[str, Any]) -> None:
+def on_ack_nak(packet: dict[str, Any]) -> None:
     """
     Handles incoming ACK/NAK response packets.
     """
-    from contact.ui.contact_ui import draw_messages_window
 
     request = packet["decoded"]["requestId"]
     if request not in ack_naks:
@@ -37,7 +37,7 @@ def onAckNak(packet: dict[str, Any]) -> None:
     confirm_string = " "
     ack_type = None
     if packet["decoded"]["routing"]["errorReason"] == "NONE":
-        if packet["from"] == interface_state.myNodeNum:  # Ack "from" ourself means implicit ACK
+        if packet["from"] == interface_state.my_node_num:  # Ack "from" ourself means implicit ACK
             confirm_string = config.ack_implicit_str
             ack_type = "Implicit"
         else:
@@ -63,12 +63,11 @@ def on_response_traceroute(packet: dict[str, Any]) -> None:
     """
     Handle traceroute response packets and render the route visually in the UI.
     """
-    from contact.ui.contact_ui import add_notification, draw_channel_list, draw_messages_window
 
     refresh_channels = False
     refresh_messages = False
 
-    UNK_SNR = -128  # Value representing unknown SNR
+    unk_snr = -128  # Value representing unknown SNR
 
     route_discovery = mesh_pb2.RouteDiscovery()
     route_discovery.ParseFromString(packet["decoded"]["payload"])
@@ -81,9 +80,9 @@ def on_response_traceroute(packet: dict[str, Any]) -> None:
     )  # Start with destination of response
 
     # SNR list should have one more entry than the route, as the final destination adds its SNR also
-    lenTowards = 0 if "route" not in msg_dict else len(msg_dict["route"])
-    snrTowardsValid = "snrTowards" in msg_dict and len(msg_dict["snrTowards"]) == lenTowards + 1
-    if lenTowards > 0:  # Loop through hops in route and add SNR if available
+    len_towards = 0 if "route" not in msg_dict else len(msg_dict["route"])
+    snr_towards_valid = "snrTowards" in msg_dict and len(msg_dict["snrTowards"]) == len_towards + 1
+    if len_towards > 0:  # Loop through hops in route and add SNR if available
         for idx, node_num in enumerate(msg_dict["route"]):
             route_str += (
                 " --> "
@@ -91,7 +90,7 @@ def on_response_traceroute(packet: dict[str, Any]) -> None:
                 + " ("
                 + (
                     str(msg_dict["snrTowards"][idx] / 4)
-                    if snrTowardsValid and msg_dict["snrTowards"][idx] != UNK_SNR
+                    if snr_towards_valid and msg_dict["snrTowards"][idx] != unk_snr
                     else "?"
                 )
                 + "dB)"
@@ -102,28 +101,28 @@ def on_response_traceroute(packet: dict[str, Any]) -> None:
         " --> "
         + (get_name_from_database(packet["from"], "short") or f"{packet['from']:08x}")
         + " ("
-        + (str(msg_dict["snrTowards"][-1] / 4) if snrTowardsValid and msg_dict["snrTowards"][-1] != UNK_SNR else "?")
+        + (str(msg_dict["snrTowards"][-1] / 4) if snr_towards_valid and msg_dict["snrTowards"][-1] != unk_snr else "?")
         + "dB)"
     )
 
     msg_str += route_str + "\n"  # Print the route towards destination
 
     # Only if hopStart is set and there is an SNR entry (for the origin) it's valid, even though route might be empty (direct connection)
-    lenBack = 0 if "routeBack" not in msg_dict else len(msg_dict["routeBack"])
-    backValid = "hopStart" in packet and "snrBack" in msg_dict and len(msg_dict["snrBack"]) == lenBack + 1
-    if backValid:
+    len_back = 0 if "routeBack" not in msg_dict else len(msg_dict["routeBack"])
+    back_valid = "hopStart" in packet and "snrBack" in msg_dict and len(msg_dict["snrBack"]) == len_back + 1
+    if back_valid:
         msg_str += "Back:\n"
         route_str = (
             get_name_from_database(packet["from"], "short") or f"{packet['from']:08x}"
         )  # Start with origin of response
 
-        if lenBack > 0:  # Loop through hops in routeBack and add SNR if available
+        if len_back > 0:  # Loop through hops in routeBack and add SNR if available
             for idx, node_num in enumerate(msg_dict["routeBack"]):
                 route_str += (
                     " --> "
                     + (get_name_from_database(node_num, "short") or f"{node_num:08x}")
                     + " ("
-                    + (str(msg_dict["snrBack"][idx] / 4) if msg_dict["snrBack"][idx] != UNK_SNR else "?")
+                    + (str(msg_dict["snrBack"][idx] / 4) if msg_dict["snrBack"][idx] != unk_snr else "?")
                     + "dB)"
                 )
 
@@ -132,7 +131,7 @@ def on_response_traceroute(packet: dict[str, Any]) -> None:
             " --> "
             + (get_name_from_database(packet["to"], "short") or f"{packet['to']:08x}")
             + " ("
-            + (str(msg_dict["snrBack"][-1] / 4) if msg_dict["snrBack"][-1] != UNK_SNR else "?")
+            + (str(msg_dict["snrBack"][-1] / 4) if msg_dict["snrBack"][-1] != unk_snr else "?")
             + "dB)"
         )
 
@@ -170,7 +169,7 @@ def send_message(message: str, destination: int = BROADCAST_NUM, channel: int = 
     """
     Sends a chat message using the selected channel.
     """
-    myid = interface_state.myNodeNum
+    myid = interface_state.my_node_num
     send_on_channel = 0
     channel_id = ui_state.channel_list[channel]
     if isinstance(channel_id, int):
@@ -184,7 +183,7 @@ def send_message(message: str, destination: int = BROADCAST_NUM, channel: int = 
         destinationId=destination,
         wantAck=True,
         wantResponse=False,
-        onResponse=onAckNak,
+        onResponse=on_ack_nak,
         channelIndex=send_on_channel,
     )
 

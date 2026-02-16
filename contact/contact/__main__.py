@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 """
 Contact - A Console UI for Meshtastic by http://github.com/pdxlocations
@@ -37,7 +37,7 @@ from contact.utilities.i18n import t
 from contact.utilities.input_handlers import get_list_input
 from contact.utilities.interfaces import initialize_interface
 from contact.utilities.singleton import app_state, interface_state, ui_state
-from contact.utilities.utils import get_channels, get_node_list, get_nodeNum
+from contact.utilities.utils import get_channels, get_node_list, get_node_num
 
 # ------------------------------------------------------------------------------
 # Environment & Logging Setup
@@ -71,7 +71,7 @@ def prompt_region_if_unset(args: object) -> None:
 def initialize_globals() -> None:
     """Initializes interface and shared globals."""
 
-    interface_state.myNodeNum = get_nodeNum()
+    interface_state.my_node_num = get_node_num()
     ui_state.channel_list = get_channels()
     ui_state.node_list = get_node_list()
     ui_state.single_pane_mode = config.single_pane_mode.lower() == "true"

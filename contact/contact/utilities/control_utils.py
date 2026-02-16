@@ -6,9 +6,9 @@ def transform_menu_path(menu_path: list[str]) -> list[str]:
     path_replacements = {"Radio Settings": "config", "Module Settings": "module"}
 
     transformed_path: list[str] = []
-    for part in menu_path[1:]:  # Skip 'Main Menu'
+    for p in menu_path[1:]:  # Skip 'Main Menu'
         # Apply fixed replacements
-        part = path_replacements.get(part, part)
+        part = path_replacements.get(p, p)
 
         # Normalize entries like "Channel 1", "Channel 2", etc.
         if re.match(r"Channel\s+\d+", part, re.IGNORECASE):

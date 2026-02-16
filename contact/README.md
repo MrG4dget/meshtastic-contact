@@ -2,20 +2,22 @@
 
 #### Powered by Meshtastic.org
 
-### Install with:
+### Install with
+
 ```bash
 pip install contact
 ```
+
 > [!NOTE]
 > Windows users must also install:
 >
 > ```powershell
 > pip install windows-curses
 > ```
+>
 > because the built-in curses module is not available on Windows.
 
 This Python curses client for Meshtastic is a terminal-based client designed to manage device settings, enable mesh chat communication, and handle configuration backups and restores.
-
 
 <img width="846" alt="Contact - Main UI Screenshot" src="https://github.com/user-attachments/assets/d2996bfb-2c6d-46a8-b820-92a9143375f4">
 
@@ -67,6 +69,7 @@ For smaller displays you may wish to enable `single_pane_mode`:
 - `ESC` = Exit out of the Settings Dialogue, or Quit the application if settings are not displayed.
 
 ### Search
+
 - Press `CTRL` + `/` while the nodes or channels window is highlighted to start search
 - Type text to search as you type, first matching item will be selected, starting at current selected index
 - Press Tab to find next match starting from the current index - search wraps around if necessary
@@ -95,15 +98,19 @@ contact --host 192.168.1.1
 contact --ble BlAddressOfDevice
 contact --port COM3
 ```
+
 To quickly connect to localhost, use:
+
 ```sh
 contact -t
 ```
-## Install in development (editable) mode:
+
+## Install in development (editable) mode
+
 ```bash
 git clone https://github.com/pdxlocations/contact.git
 cd contact
-python3 -m venv .venv
+python -m venv .venv
 source .venv/bin/activate
 pip install -e .
 ```

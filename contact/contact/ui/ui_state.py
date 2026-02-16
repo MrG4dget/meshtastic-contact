@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Union
+from typing import Any
 
 
 @dataclass
@@ -7,7 +7,7 @@ class MenuState:
     menu_index: list[int] = field(default_factory=list)
     start_index: list[int] = field(default_factory=lambda: [0])
     selected_index: int = 0
-    current_menu: Union[dict[str, Any], list[Any], str, int] = field(default_factory=dict)
+    current_menu: dict[str, Any] | list[Any] | str | int = field(default_factory=dict)
     menu_path: list[str] = field(default_factory=list)
     show_save_option: bool = False
     need_redraw: bool = False
@@ -38,7 +38,7 @@ class ChatUIState:
 @dataclass
 class InterfaceState:
     interface: Any = None
-    myNodeNum: int = 0
+    my_node_num: int = 0
 
 
 @dataclass

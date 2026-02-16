@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from typing import Optional
+import tempfile
 
 from contact.ui.colors import setup_colors
 
@@ -51,8 +51,6 @@ def _get_config_root(preferred_dir: str, fallback_name: str = ".contact_client")
 
     # If *that* still isn't writable, last-ditch: use a system temp dir.
     if not _is_writable_dir(fallback_dir):
-        import tempfile
-
         fallback_dir = tempfile.mkdtemp(prefix="contact_client_")
 
     return fallback_dir
@@ -69,7 +67,7 @@ node_configs_file_path = os.path.join(config_root, "node-configs/")
 localisations_dir = os.path.join(parent_dir, "localisations")
 
 
-def get_localisation_options(localisations_path: Optional[str] = None) -> list[str]:
+def get_localisation_options(localisations_path: str | None = None) -> list[str]:
     """
     Return available localisation codes from the localisations folder.
     """
@@ -86,7 +84,7 @@ def get_localisation_options(localisations_path: Optional[str] = None) -> list[s
     return sorted(options)
 
 
-def get_localisation_file(language: str, localisations_path: Optional[str] = None) -> str:
+def get_localisation_file(language: str, localisations_path: str | None = None) -> str:
     """
     Return a valid localisation file path, falling back to a default when missing.
     """
@@ -97,7 +95,7 @@ def get_localisation_file(language: str, localisations_path: Optional[str] = Non
 
     normalized = (language or "").strip().lower()
     if normalized.endswith(".ini"):
-        normalized = normalized[:-4]
+        normalized = normalized[:-4]  # noqa: PLR2004
 
     if normalized in available:
         return os.path.join(localisations_path, f"{normalized}.ini")
@@ -139,7 +137,7 @@ def update_dict(default: dict[str, object], actual: dict[str, object]) -> bool:
 
 
 def initialize_config() -> dict[str, object]:
-    COLOR_CONFIG_DARK = {
+    color_config_dark = {
         "default": ["white", "black"],
         "background": [" ", "black"],
         "splash_logo": ["green", "black"],
@@ -165,7 +163,7 @@ def initialize_config() -> dict[str, object]:
         "node_favorite": ["green", "black"],
         "node_ignored": ["red", "black"],
     }
-    COLOR_CONFIG_LIGHT = {
+    color_config_light = {
         "default": ["black", "white"],
         "background": [" ", "white"],
         "splash_logo": ["green", "white"],
@@ -191,7 +189,7 @@ def initialize_config() -> dict[str, object]:
         "node_favorite": ["green", "white"],
         "node_ignored": ["red", "white"],
     }
-    COLOR_CONFIG_GREEN = {
+    color_config_green = {
         "default": ["green", "black"],
         "background": [" ", "black"],
         "splash_logo": ["green", "black"],
@@ -210,8 +208,6 @@ def initialize_config() -> dict[str, object]:
         "log": ["green", "black"],
         "settings_default": ["green", "black"],
         "settings_sensitive": ["green", "black"],
-        "settings_save": ["green", "black"],
-        "settings_breadcrumbs": ["green", "black"],
         "settings_save": ["green", "black"],
         "settings_breadcrumbs": ["green", "black"],
         "settings_warning": ["green", "black"],
@@ -241,9 +237,9 @@ def initialize_config() -> dict[str, object]:
         "ack_unknown_str": "[…]",
         "node_sort": "lastHeard",
         "theme": "dark",
-        "COLOR_CONFIG_DARK": COLOR_CONFIG_DARK,
-        "COLOR_CONFIG_LIGHT": COLOR_CONFIG_LIGHT,
-        "COLOR_CONFIG_GREEN": COLOR_CONFIG_GREEN,
+        "COLOR_CONFIG_DARK": color_config_dark,
+        "COLOR_CONFIG_LIGHT": color_config_light,
+        "COLOR_CONFIG_GREEN": color_config_green,
     }
 
     if not os.path.exists(json_file_path):
@@ -271,11 +267,11 @@ def initialize_config() -> dict[str, object]:
 def assign_config_variables(loaded_config: dict[str, object]) -> None:
     # Assign values to local variables
 
-    global db_file_path, log_file_path, node_configs_file_path, message_prefix, sent_message_prefix
-    global notification_symbol, ack_implicit_str, ack_str, nak_str, ack_unknown_str
-    global node_list_16ths, channel_list_16ths, single_pane_mode
-    global theme, COLOR_CONFIG, language
-    global node_sort, notification_sound
+    global db_file_path, log_file_path, node_configs_file_path, message_prefix, sent_message_prefix  # noqa: PLW0603
+    global notification_symbol, ack_implicit_str, ack_str, nak_str, ack_unknown_str  # noqa: PLW0603
+    global node_list_16ths, channel_list_16ths, single_pane_mode  # noqa: PLW0603
+    global theme, COLOR_CONFIG, language  # noqa: PLW0603
+    global node_sort, notification_sound  # noqa: PLW0603
 
     channel_list_16ths = loaded_config["channel_list_16ths"]
     node_list_16ths = loaded_config["node_list_16ths"]

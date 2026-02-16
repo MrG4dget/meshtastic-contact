@@ -2,13 +2,13 @@ import base64
 import binascii
 import curses
 import ipaddress
-from typing import Optional
 
 from contact.ui.colors import get_color
 from contact.ui.dialog import dialog
 from contact.ui.nav_utils import draw_arrows, move_highlight, wrap_text
 from contact.utilities.i18n import t, t_text
 from contact.utilities.singleton import menu_state
+from contact.utilities.utils import KEY_BACKSPACE, KEY_ESC
 from contact.utilities.validation_rules import get_validation_for
 
 # Dialogs should be at most 80 cols, but shrink on small terminals
@@ -25,7 +25,7 @@ def get_dialog_width() -> int:
         return MAX_DIALOG_WIDTH
 
 
-def invalid_input(window: curses.window, message: str, redraw_func: Optional[callable] = None) -> None:
+def invalid_input(window: curses.window, message: str, redraw_func: callable | None = None) -> None:
     """Displays an invalid input message in the given window and redraws if needed."""
     cursor_y, cursor_x = window.getyx()
     curses.curs_set(0)
@@ -38,7 +38,7 @@ def invalid_input(window: curses.window, message: str, redraw_func: Optional[cal
     curses.curs_set(1)
 
 
-def get_text_input(prompt: str, selected_config: str, input_type: str) -> Optional[str]:
+def get_text_input(prompt: str, selected_config: str, input_type: str) -> str | None:  # noqa: PLR0915, PLR0912
     """Handles user input with wrapped text for long prompts."""
 
     def redraw_input_win():
@@ -49,12 +49,12 @@ def get_text_input(prompt: str, selected_config: str, input_type: str) -> Option
         for line in wrapped_prompt:
             input_win.addstr(row, margin, line[:input_width], get_color("settings_default", bold=True))
             row += 1
-            if row >= height - 3:
+            if row >= height - 3:  # noqa: PLR2004
                 break
         input_win.addstr(row + 1, margin, prompt_text, get_color("settings_default"))
         input_win.addstr(row + 1, col_start, user_input[:first_line_width], get_color("settings_default"))
         for i, line in enumerate(wrap_text(user_input[first_line_width:], wrap_width=input_width)):
-            if row + 2 + i < height - 1:
+            if row + 2 + i < height - 1:  # noqa: PLR2004
                 input_win.addstr(row + 2 + i, margin, line[:input_width], get_color("settings_default"))
         input_win.refresh()
 
@@ -62,13 +62,13 @@ def get_text_input(prompt: str, selected_config: str, input_type: str) -> Option
     width = get_dialog_width()
     margin = 2  # Left and right margin
     input_width = width - (2 * margin)  # Space available for text
-    max_input_rows = height - 4  # Space for input
+    max_input_rows = height - 4  # Space for input  # noqa: PLR2004
 
     start_y = max(0, (curses.LINES - height) // 2)
     start_x = max(0, (curses.COLS - width) // 2)
 
     input_win = curses.newwin(height, width, start_y, start_x)
-    input_win.timeout(200)
+    input_win.timeout(200)  # noqa: PLR2004
     input_win.bkgd(get_color("background"))
     input_win.attrset(get_color("window_frame"))
     input_win.border()
@@ -81,7 +81,7 @@ def get_text_input(prompt: str, selected_config: str, input_type: str) -> Option
     for line in wrapped_prompt:
         input_win.addstr(row, margin, line[:input_width], get_color("settings_default", bold=True))
         row += 1
-        if row >= height - 3:  # Prevent overflow
+        if row >= height - 3:  # Prevent overflow  # noqa: PLR2004
             break
 
     prompt_text = t("ui.prompt.enter_new_value", default="Enter new value: ")
@@ -91,14 +91,14 @@ def get_text_input(prompt: str, selected_config: str, input_type: str) -> Option
     curses.curs_set(1)
 
     min_value = 0
-    max_value = 4294967295
+    max_value = 4294967295  # noqa: PLR2004
     min_length = 0
     max_length = None
 
     if selected_config is not None:
         validation = get_validation_for(selected_config) or {}
         min_value = validation.get("min_value", 0)
-        max_value = validation.get("max_value", 4294967295)
+        max_value = validation.get("max_value", 4294967295)  # noqa: PLR2004
         min_length = validation.get("min_length", 0)
         max_length = validation.get("max_length")
 
@@ -116,14 +116,14 @@ def get_text_input(prompt: str, selected_config: str, input_type: str) -> Option
         except curses.error:
             continue
 
-        if key == chr(27) or key == curses.KEY_LEFT:
+        if key in (chr(27), curses.KEY_LEFT):  # noqa: PLR2004
             input_win.erase()
             input_win.refresh()
             curses.curs_set(0)
             menu_state.need_redraw = True
             return None
 
-        elif key in (chr(curses.KEY_ENTER), chr(10), chr(13)):
+        elif key in (chr(curses.KEY_ENTER), chr(10), chr(13)):  # noqa: PLR2004
             menu_state.need_redraw = True
 
             if not user_input.strip():
@@ -226,7 +226,7 @@ def get_text_input(prompt: str, selected_config: str, input_type: str) -> Option
             else:
                 break
 
-        elif key in (curses.KEY_BACKSPACE, chr(127)):  # Handle Backspace
+        elif key in (curses.KEY_BACKSPACE, chr(127)):  # Handle Backspace  # noqa: PLR2004
             if user_input:
                 user_input = user_input[:-1]  # Remove last character
 
@@ -256,7 +256,7 @@ def get_text_input(prompt: str, selected_config: str, input_type: str) -> Option
 
         # Clear only the input area (without touching prompt text)
         for i in range(max_input_rows):
-            if row + 1 + i < height - 1:
+            if row + 1 + i < height - 1:  # noqa: PLR2004
                 input_win.addstr(row + 1 + i, margin, " " * input_width, get_color("settings_default"))
 
         # Redraw the prompt text so it never disappears
@@ -265,7 +265,7 @@ def get_text_input(prompt: str, selected_config: str, input_type: str) -> Option
         # Redraw wrapped input
         input_win.addstr(row + 1, col_start, first_line, get_color("settings_default"))  # First line next to prompt
         for i, line in enumerate(wrapped_lines):
-            if row + 2 + i < height - 1:
+            if row + 2 + i < height - 1:  # noqa: PLR2004
                 input_win.addstr(row + 2 + i, margin, line[:input_width], get_color("settings_default"))
 
         input_win.refresh()
@@ -276,7 +276,7 @@ def get_text_input(prompt: str, selected_config: str, input_type: str) -> Option
     return user_input.strip()
 
 
-def get_admin_key_input(current_value: list[bytes]) -> Optional[list[str]]:
+def get_admin_key_input(current_value: list[bytes]) -> list[str] | None:  # noqa: PLR0915, PLR0912
     """Handles user input for editing up to 3 Admin Keys in Base64 format."""
 
     def to_base64(byte_strings):
@@ -289,7 +289,7 @@ def get_admin_key_input(current_value: list[bytes]) -> Optional[list[str]]:
             return True
         try:
             decoded = base64.b64decode(s, validate=True)
-            return len(decoded) == 32  # Ensure it's exactly 32 bytes
+            return len(decoded) == 32  # Ensure it's exactly 32 bytes  # noqa: PLR2004
         except (binascii.Error, ValueError):
             return False
 
@@ -300,7 +300,7 @@ def get_admin_key_input(current_value: list[bytes]) -> Optional[list[str]]:
     start_x = max(0, (curses.COLS - width) // 2)
 
     admin_key_win = curses.newwin(height, width, start_y, start_x)
-    admin_key_win.timeout(200)
+    admin_key_win.timeout(200)  # noqa: PLR2004
     admin_key_win.bkgd(get_color("background"))
     admin_key_win.attrset(get_color("window_frame"))
     admin_key_win.keypad(True)  # Enable keypad for special keys
@@ -309,9 +309,9 @@ def get_admin_key_input(current_value: list[bytes]) -> Optional[list[str]]:
     curses.curs_set(1)
 
     # Editable list of values (max 3 values)
-    user_values = cvalue[:3] + [""] * (3 - len(cvalue))  # Ensure always 3 fields
+    user_values = cvalue[:3] + [""] * (3 - len(cvalue))  # Ensure always 3 fields  # noqa: PLR2004
     cursor_pos = 0  # Track which value is being edited
-    invalid_input = ""
+    invalid_input_msg = ""
 
     while True:
         admin_key_win.erase()
@@ -327,25 +327,27 @@ def get_admin_key_input(current_value: list[bytes]) -> Optional[list[str]]:
         for i, line in enumerate(user_values):
             prefix = "→ " if i == cursor_pos else "  "  # Highlight the current line
             admin_key_win.addstr(
-                3 + i,
+                3 + i,  # noqa: PLR2004
                 2,
                 f"{prefix}{t('ui.label.admin_key', default='Admin Key')} {i + 1}: ",
                 get_color("settings_default", bold=(i == cursor_pos)),
             )
-            admin_key_win.addstr(3 + i, 18, line)  # Align text for easier editing
+            admin_key_win.addstr(3 + i, 18, line)  # Align text for easier editing  # noqa: PLR2004
 
         # Move cursor to the correct position inside the field
         curses.curs_set(1)
-        admin_key_win.move(3 + cursor_pos, 18 + len(user_values[cursor_pos]))  # Position cursor at end of text
+        admin_key_win.move(
+            3 + cursor_pos, 18 + len(user_values[cursor_pos])
+        )  # Position cursor at end of text  # noqa: PLR2004
 
         # Show error message if needed
-        if invalid_input:
-            admin_key_win.addstr(7, 2, t_text(invalid_input), get_color("settings_default", bold=True))
+        if invalid_input_msg:
+            admin_key_win.addstr(7, 2, t_text(invalid_input_msg), get_color("settings_default", bold=True))  # noqa: PLR2004
 
         admin_key_win.refresh()
         key = admin_key_win.getch()
 
-        if key == 27 or key == curses.KEY_LEFT:  # Escape or Left Arrow -> Cancel and return original
+        if key in (KEY_ESC, curses.KEY_LEFT):  # Escape or Left Arrow -> Cancel and return original
             admin_key_win.erase()
             admin_key_win.refresh()
             curses.noecho()
@@ -360,7 +362,7 @@ def get_admin_key_input(current_value: list[bytes]) -> Optional[list[str]]:
                 curses.curs_set(0)
                 return user_values  # Return the edited Base64 values
             else:
-                invalid_input = t(
+                invalid_input_msg = t(
                     "ui.error.admin_key_invalid",
                     default="Error: Each key must be valid Base64 and 32 bytes long!",
                 )
@@ -368,28 +370,25 @@ def get_admin_key_input(current_value: list[bytes]) -> Optional[list[str]]:
             cursor_pos = (cursor_pos - 1) % len(user_values)
         elif key == curses.KEY_DOWN:  # Move cursor down
             cursor_pos = (cursor_pos + 1) % len(user_values)
-        elif key == curses.KEY_BACKSPACE or key == 127:  # Backspace key
+        elif key in (curses.KEY_BACKSPACE, KEY_BACKSPACE):  # Backspace key
             if len(user_values[cursor_pos]) > 0:
                 user_values[cursor_pos] = user_values[cursor_pos][:-1]  # Remove last character
         else:
             try:
                 user_values[cursor_pos] += chr(key)  # Append valid character input to the selected field
-                invalid_input = ""  # Clear error if user starts fixing input
+                invalid_input_msg = ""  # Clear error if user starts fixing input
             except ValueError:
                 pass  # Ignore invalid character inputs
 
 
-from contact.utilities.singleton import menu_state  # Required if not already imported
-
-
-def get_repeated_input(current_value: list[str]) -> Optional[str]:
+def get_repeated_input(current_value: list[str]) -> str | None:  # noqa: PLR0912, PLR0915
     height = 9
     width = get_dialog_width()
     start_y = max(0, (curses.LINES - height) // 2)
     start_x = max(0, (curses.COLS - width) // 2)
 
     repeated_win = curses.newwin(height, width, start_y, start_x)
-    repeated_win.timeout(200)
+    repeated_win.timeout(200)  # noqa: PLR2004
     repeated_win.bkgd(get_color("background"))
     repeated_win.attrset(get_color("window_frame"))
     repeated_win.keypad(True)
@@ -397,9 +396,9 @@ def get_repeated_input(current_value: list[str]) -> Optional[str]:
     curses.echo()
     curses.curs_set(1)
 
-    user_values = current_value[:3] + [""] * (3 - len(current_value))  # Always 3 fields
+    user_values = current_value[:3] + [""] * (3 - len(current_value))  # Always 3 fields  # noqa: PLR2004
     cursor_pos = 0
-    invalid_input = ""
+    invalid_input_msg = ""
 
     def redraw():
         repeated_win.erase()
@@ -415,18 +414,18 @@ def get_repeated_input(current_value: list[str]) -> Optional[str]:
         for i, line in enumerate(user_values):
             prefix = "→ " if i == cursor_pos else "  "
             repeated_win.addstr(
-                3 + i,
+                3 + i,  # noqa: PLR2004
                 2,
                 f"{prefix}{t('ui.label.value', default='Value')}{i + 1}: ",
                 get_color("settings_default", bold=(i == cursor_pos)),
             )
-            repeated_win.addstr(3 + i, 18, line[: max(0, win_w - 20)])  # Prevent overflow
+            repeated_win.addstr(3 + i, 18, line[: max(0, win_w - 20)])  # Prevent overflow  # noqa: PLR2004
 
-        if invalid_input:
+        if invalid_input_msg:
             win_h, win_w = repeated_win.getmaxyx()
-            repeated_win.addstr(7, 2, invalid_input[: max(0, win_w - 4)], get_color("settings_default", bold=True))
+            repeated_win.addstr(7, 2, invalid_input_msg[: max(0, win_w - 4)], get_color("settings_default", bold=True))  # noqa: PLR2004
 
-        repeated_win.move(3 + cursor_pos, 18 + len(user_values[cursor_pos]))
+        repeated_win.move(3 + cursor_pos, 18 + len(user_values[cursor_pos]))  # noqa: PLR2004
         repeated_win.refresh()
 
     while True:
@@ -441,7 +440,7 @@ def get_repeated_input(current_value: list[str]) -> Optional[str]:
         except curses.error:
             continue  # ignore timeout or input issues
 
-        if key in (27, curses.KEY_LEFT):  # ESC or Left Arrow
+        if key in (27, curses.KEY_LEFT):  # ESC or Left Arrow  # noqa: PLR2004
             repeated_win.erase()
             repeated_win.refresh()
             curses.noecho()
@@ -454,28 +453,25 @@ def get_repeated_input(current_value: list[str]) -> Optional[str]:
             menu_state.need_redraw = True
             return ", ".join(user_values).strip()
         elif key == curses.KEY_UP:
-            cursor_pos = (cursor_pos - 1) % 3
+            cursor_pos = (cursor_pos - 1) % 3  # noqa: PLR2004
         elif key == curses.KEY_DOWN:
-            cursor_pos = (cursor_pos + 1) % 3
-        elif key in (curses.KEY_BACKSPACE, 127):
+            cursor_pos = (cursor_pos + 1) % 3  # noqa: PLR2004
+        elif key in (curses.KEY_BACKSPACE, 127):  # noqa: PLR2004
             user_values[cursor_pos] = user_values[cursor_pos][:-1]
         else:
             try:
                 ch = chr(key) if isinstance(key, int) else key
                 if ch.isprintable():
                     user_values[cursor_pos] += ch
-                    invalid_input = ""
+                    invalid_input_msg = ""
             except Exception:
                 pass
 
 
-from contact.utilities.singleton import menu_state  # Ensure this is imported
-
-
-def get_fixed32_input(current_value: int) -> int:
+def get_fixed32_input(current_value: int) -> int:  # noqa: PLR0912, PLR0915
     original_value = current_value
     try:
-        ip_string = str(ipaddress.IPv4Address(int(current_value).to_bytes(4, "little", signed=False)))
+        ip_string = str(ipaddress.IPv4Address(int(current_value).to_bytes(4, "little", signed=False)))  # noqa: PLR2004
     except Exception:
         ip_string = str(ipaddress.IPv4Address(current_value))
     height = 10
@@ -487,7 +483,7 @@ def get_fixed32_input(current_value: int) -> int:
     fixed32_win.bkgd(get_color("background"))
     fixed32_win.attrset(get_color("window_frame"))
     fixed32_win.keypad(True)
-    fixed32_win.timeout(200)
+    fixed32_win.timeout(200)  # noqa: PLR2004
 
     curses.echo()
     curses.curs_set(1)
@@ -525,7 +521,7 @@ def get_fixed32_input(current_value: int) -> int:
         except curses.error:
             continue  # ignore timeout
 
-        if key in (27, curses.KEY_LEFT):  # ESC or Left Arrow to cancel
+        if key in (27, curses.KEY_LEFT):  # ESC or Left Arrow to cancel  # noqa: PLR2004
             fixed32_win.erase()
             fixed32_win.refresh()
             curses.noecho()
@@ -536,7 +532,7 @@ def get_fixed32_input(current_value: int) -> int:
         elif key in ("\n", curses.KEY_ENTER):
             octets = user_input.split(".")
             menu_state.need_redraw = True
-            if len(octets) == 4 and all(octet.isdigit() and 0 <= int(octet) <= 255 for octet in octets):
+            if len(octets) == 4 and all(octet.isdigit() and 0 <= int(octet) <= 255 for octet in octets):  # noqa: PLR2004
                 curses.noecho()
                 curses.curs_set(0)
                 return int.from_bytes(ipaddress.IPv4Address(user_input).packed, "little", signed=False)
@@ -548,10 +544,10 @@ def get_fixed32_input(current_value: int) -> int:
                     get_color("settings_default", bold=True),
                 )
                 fixed32_win.refresh()
-                curses.napms(1500)
+                curses.napms(1500)  # noqa: PLR2004
                 user_input = ""
 
-        elif key in (curses.KEY_BACKSPACE, curses.KEY_DC, 127, 8, "\b", "\x7f"):
+        elif key in (curses.KEY_BACKSPACE, curses.KEY_DC, 127, 8, "\b", "\x7f"):  # noqa: PLR2004
             user_input = user_input[:-1]
 
         else:
@@ -563,33 +559,29 @@ def get_fixed32_input(current_value: int) -> int:
                 pass  # Ignore unprintable inputs
 
 
-from typing import Optional  # ensure Optional is imported
-
-
-def get_list_input(
-    prompt: str, current_option: Optional[str], list_options: list[str], mandatory: bool = False
-) -> Optional[str]:
+def get_list_input(  # noqa: PLR0915
+    prompt: str, current_option: str | None, list_options: list[str], mandatory: bool = False
+) -> str | None:
     """
     List selector.
     """
     selected_index = list_options.index(current_option) if current_option in list_options else 0
 
-    height = min(len(list_options) + 5, curses.LINES)
+    height = min(len(list_options) + 5, curses.LINES)  # noqa: PLR2004
     width = get_dialog_width()
     start_y = max(0, (curses.LINES - height) // 2)
     start_x = max(0, (curses.COLS - width) // 2)
 
     list_win = curses.newwin(height, width, start_y, start_x)
-    list_win.timeout(200)
+    list_win.timeout(200)  # noqa: PLR2004
     list_win.bkgd(get_color("background"))
     list_win.attrset(get_color("window_frame"))
     list_win.keypad(True)
 
-    list_pad = curses.newpad(len(list_options) + 1, max(1, width - 8))
+    list_pad = curses.newpad(len(list_options) + 1, max(1, width - 8))  # noqa: PLR2004
     list_pad.bkgd(get_color("background"))
 
     max_index = len(list_options) - 1
-    visible_height = list_win.getmaxyx()[0] - 5
 
     def redraw_list_ui():
         translated_prompt = t_text(prompt)
@@ -598,7 +590,7 @@ def get_list_input(
         list_win.addstr(1, 2, translated_prompt, get_color("settings_default", bold=True))
 
         win_h, win_w = list_win.getmaxyx()
-        pad_w = max(1, win_w - 8)
+        pad_w = max(1, win_w - 8)  # noqa: PLR2004
         for idx, item in enumerate(list_options):
             color = get_color("settings_default", reverse=(idx == selected_index))
             display_item = t_text(item)
@@ -608,13 +600,13 @@ def get_list_input(
         list_pad.refresh(
             0,
             0,
-            list_win.getbegyx()[0] + 3,
-            list_win.getbegyx()[1] + 4,
-            list_win.getbegyx()[0] + list_win.getmaxyx()[0] - 2,
-            list_win.getbegyx()[1] + list_win.getmaxyx()[1] - 4,
+            list_win.getbegyx()[0] + 3,  # noqa: PLR2004
+            list_win.getbegyx()[1] + 4,  # noqa: PLR2004
+            list_win.getbegyx()[0] + list_win.getmaxyx()[0] - 2,  # noqa: PLR2004
+            list_win.getbegyx()[1] + list_win.getmaxyx()[1] - 4,  # noqa: PLR2004
         )
         # Recompute visible height each draw in case of resize
-        vis_h = list_win.getmaxyx()[0] - 5
+        vis_h = list_win.getmaxyx()[0] - 5  # noqa: PLR2004
         draw_arrows(list_win, vis_h, max_index, [0], show_save_option=False)
 
     # Initial draw
@@ -646,7 +638,7 @@ def get_list_input(
             menu_state.need_redraw = True
             return list_options[selected_index]
 
-        elif key == 27 or key == curses.KEY_LEFT:  # ESC or Left
+        elif key in (27, curses.KEY_LEFT):  # ESC or Left  # noqa: PLR2004
             if mandatory:
                 continue
             list_win.clear()

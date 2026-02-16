@@ -5,7 +5,7 @@ import pytest
 
 # Add scripts/agents directory to path to import sync_shims
 sys.path.append(str(Path(__file__).resolve().parents[1] / "scripts" / "agents"))
-import sync_shims
+import sync_shims  # noqa: E402
 
 
 def test_ensure_dir(tmp_path):

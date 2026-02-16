@@ -7,8 +7,10 @@ def setup_parser() -> ArgumentParser:
         epilog="If no connection arguments are specified, we attempt a serial connection and then a TCP connection to localhost.",
     )
 
-    connOuter = parser.add_argument_group("Connection", "Optional arguments to specify a device to connect to and how.")
-    conn = connOuter.add_mutually_exclusive_group()
+    conn_outer = parser.add_argument_group(
+        "Connection", "Optional arguments to specify a device to connect to and how."
+    )
+    conn = conn_outer.add_mutually_exclusive_group()
     conn.add_argument(
         "--port",
         "--serial",

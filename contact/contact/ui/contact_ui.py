@@ -18,37 +18,44 @@ from contact.utilities.utils import get_channels, get_readable_duration, get_tim
 MIN_COL = 1  # "effectively zero" without breaking curses
 root_win = None
 
+# Window IDs
+WINDOW_CHANNELS = 0
+WINDOW_MESSAGES = 1
+WINDOW_NODES = 2
+WINDOW_ENTRY = 3
+WINDOW_LOG = 4
+
 
 # Draw arrows for a specific window id (0=channel,1=messages,2=nodes).
 def draw_window_arrows(window_id: int) -> None:
-    if window_id == 0:
-        draw_main_arrows(channel_win, len(ui_state.channel_list), window=0)
+    if window_id == WINDOW_CHANNELS:
+        draw_main_arrows(channel_win, len(ui_state.channel_list), window=WINDOW_CHANNELS)
         channel_win.refresh()
-    elif window_id == 1:
+    elif window_id == WINDOW_MESSAGES:
         msg_line_count = messages_pad.getmaxyx()[0]
         draw_main_arrows(
             messages_win,
             msg_line_count,
-            window=1,
+            window=WINDOW_MESSAGES,
             log_height=packetlog_win.getmaxyx()[0],
         )
         messages_win.refresh()
-    elif window_id == 2:
-        draw_main_arrows(nodes_win, len(ui_state.node_list), window=2)
+    elif window_id == WINDOW_NODES:
+        draw_main_arrows(nodes_win, len(ui_state.node_list), window=WINDOW_NODES)
         nodes_win.refresh()
 
 
 def compute_widths(total_w: int, focus: int):
     # focus: 0=channel, 1=messages, 2=nodes
-    if total_w < 3 * MIN_COL:
+    if total_w < 3 * MIN_COL:  # noqa: PLR2004
         # tiny terminals: allocate something, anything
         return max(1, total_w), 0, 0
 
-    if focus == 0:
-        return total_w - 2 * MIN_COL, MIN_COL, MIN_COL
-    if focus == 1:
-        return MIN_COL, total_w - 2 * MIN_COL, MIN_COL
-    return MIN_COL, MIN_COL, total_w - 2 * MIN_COL
+    if focus == WINDOW_CHANNELS:
+        return total_w - 2 * MIN_COL, MIN_COL, MIN_COL  # noqa: PLR2004
+    if focus == WINDOW_MESSAGES:
+        return MIN_COL, total_w - 2 * MIN_COL, MIN_COL  # noqa: PLR2004
+    return MIN_COL, MIN_COL, total_w - 2 * MIN_COL  # noqa: PLR2004
 
 
 def paint_frame(win, selected: bool) -> None:
@@ -58,9 +65,9 @@ def paint_frame(win, selected: bool) -> None:
     win.refresh()
 
 
-def handle_resize(stdscr: curses.window, firstrun: bool) -> None:
+def handle_resize(stdscr: curses.window, firstrun: bool) -> None:  # noqa: PLR0915, PLR0912
     """Handle terminal resize events and redraw the UI accordingly."""
-    global messages_pad, messages_win, nodes_pad, nodes_win, channel_pad, channel_win, packetlog_win, entry_win
+    global messages_pad, messages_win, nodes_pad, nodes_win, channel_pad, channel_win, packetlog_win, entry_win  # noqa: PLW0603
 
     # Calculate window max dimensions
     height, width = stdscr.getmaxyx()
@@ -68,8 +75,8 @@ def handle_resize(stdscr: curses.window, firstrun: bool) -> None:
     if ui_state.single_pane_mode:
         channel_width, messages_width, nodes_width = compute_widths(width, ui_state.current_window)
     else:
-        channel_width = int(config.channel_list_16ths) * (width // 16)
-        nodes_width = int(config.node_list_16ths) * (width // 16)
+        channel_width = int(config.channel_list_16ths) * (width // 16)  # noqa: PLR2004
+        nodes_width = int(config.node_list_16ths) * (width // 16)  # noqa: PLR2004
         messages_width = width - channel_width - nodes_width
 
     channel_width = max(MIN_COL, channel_width)
@@ -80,9 +87,9 @@ def handle_resize(stdscr: curses.window, firstrun: bool) -> None:
     total = channel_width + messages_width + nodes_width
     if total != width:
         delta = total - width
-        if ui_state.current_window == 0:
+        if ui_state.current_window == WINDOW_CHANNELS:
             channel_width = max(MIN_COL, channel_width - delta)
-        elif ui_state.current_window == 1:
+        elif ui_state.current_window == WINDOW_MESSAGES:
             messages_width = max(MIN_COL, messages_width - delta)
         else:
             nodes_width = max(MIN_COL, nodes_width - delta)
@@ -151,16 +158,15 @@ def handle_resize(stdscr: curses.window, firstrun: bool) -> None:
         draw_node_list()
         draw_window_arrows(ui_state.current_window)
 
-    except:
+    except Exception:  # noqa: E722
         # Resize events can come faster than we can re-draw, which can cause a curses error.
         # In this case we'll see another curses.KEY_RESIZE in our key handler and draw again later.
         pass
 
 
-def main_ui(stdscr: curses.window) -> None:
+def main_ui(stdscr: curses.window) -> None:  # noqa: PLR0915, PLR0912
     """Main UI loop for the curses interface."""
-    global input_text
-    global root_win
+    global input_text, root_win  # noqa: PLW0603
 
     root_win = stdscr
     input_text = ""
@@ -169,7 +175,7 @@ def main_ui(stdscr: curses.window) -> None:
     handle_resize(stdscr, True)
 
     while True:
-        draw_text_field(entry_win, f"Message: {(input_text or '')[-(stdscr.getmaxyx()[1] - 10):]}", get_color("input"))
+        draw_text_field(entry_win, f"Message: {(input_text or '')[-(stdscr.getmaxyx()[1] - 10) :]}", get_color("input"))  # noqa: PLR2004
 
         # Get user input from entry window
         char = entry_win.get_wch()
@@ -194,7 +200,7 @@ def main_ui(stdscr: curses.window) -> None:
         elif char == curses.KEY_NPAGE:
             handle_pagedown()
 
-        elif char == curses.KEY_LEFT or char == curses.KEY_RIGHT:
+        elif char in (curses.KEY_LEFT, curses.KEY_RIGHT):
             handle_leftright(char)
 
         elif char in (curses.KEY_F1, curses.KEY_F2, curses.KEY_F3):
@@ -240,42 +246,41 @@ def main_ui(stdscr: curses.window) -> None:
         elif char == chr(27):  # Escape to exit
             break
 
+        # Append typed character to input text
+        elif isinstance(char, str):
+            input_text += char
         else:
-            # Append typed character to input text
-            if isinstance(char, str):
-                input_text += char
-            else:
-                input_text += chr(char)
+            input_text += chr(char)
 
 
 def handle_up() -> None:
     """Handle key up events to scroll the current window."""
-    if ui_state.current_window == 0:
+    if ui_state.current_window == WINDOW_CHANNELS:
         scroll_channels(-1)
-    elif ui_state.current_window == 1:
+    elif ui_state.current_window == WINDOW_MESSAGES:
         scroll_messages(-1)
-    elif ui_state.current_window == 2:
+    elif ui_state.current_window == WINDOW_NODES:
         scroll_nodes(-1)
 
 
 def handle_down() -> None:
     """Handle key down events to scroll the current window."""
-    if ui_state.current_window == 0:
+    if ui_state.current_window == WINDOW_CHANNELS:
         scroll_channels(1)
-    elif ui_state.current_window == 1:
+    elif ui_state.current_window == WINDOW_MESSAGES:
         scroll_messages(1)
-    elif ui_state.current_window == 2:
+    elif ui_state.current_window == WINDOW_NODES:
         scroll_nodes(1)
 
 
 def handle_home() -> None:
     """Handle home key events to select the first item in the current window."""
-    if ui_state.current_window == 0:
+    if ui_state.current_window == WINDOW_CHANNELS:
         select_channel(0)
-    elif ui_state.current_window == 1:
+    elif ui_state.current_window == WINDOW_MESSAGES:
         ui_state.selected_message = 0
-        refresh_pad(1)
-    elif ui_state.current_window == 2:
+        refresh_pad(WINDOW_MESSAGES)
+    elif ui_state.current_window == WINDOW_NODES:
         select_node(0)
 
     draw_window_arrows(ui_state.current_window)
@@ -283,44 +288,44 @@ def handle_home() -> None:
 
 def handle_end() -> None:
     """Handle end key events to select the last item in the current window."""
-    if ui_state.current_window == 0:
+    if ui_state.current_window == WINDOW_CHANNELS:
         select_channel(len(ui_state.channel_list) - 1)
-    elif ui_state.current_window == 1:
+    elif ui_state.current_window == WINDOW_MESSAGES:
         msg_line_count = messages_pad.getmaxyx()[0]
         ui_state.selected_message = max(msg_line_count - get_msg_window_lines(messages_win, packetlog_win), 0)
-        refresh_pad(1)
-    elif ui_state.current_window == 2:
+        refresh_pad(WINDOW_MESSAGES)
+    elif ui_state.current_window == WINDOW_NODES:
         select_node(len(ui_state.node_list) - 1)
     draw_window_arrows(ui_state.current_window)
 
 
 def handle_pageup() -> None:
     """Handle page up key events to scroll the current window by a page."""
-    if ui_state.current_window == 0:
-        select_channel(ui_state.selected_channel - (channel_win.getmaxyx()[0] - 2))
-    elif ui_state.current_window == 1:
+    if ui_state.current_window == WINDOW_CHANNELS:
+        select_channel(ui_state.selected_channel - (channel_win.getmaxyx()[0] - 2))  # noqa: PLR2004
+    elif ui_state.current_window == WINDOW_MESSAGES:
         ui_state.selected_message = max(
             ui_state.selected_message - get_msg_window_lines(messages_win, packetlog_win), 0
         )
-        refresh_pad(1)
-    elif ui_state.current_window == 2:
-        select_node(ui_state.selected_node - (nodes_win.getmaxyx()[0] - 2))
+        refresh_pad(WINDOW_MESSAGES)
+    elif ui_state.current_window == WINDOW_NODES:
+        select_node(ui_state.selected_node - (nodes_win.getmaxyx()[0] - 2))  # noqa: PLR2004
     draw_window_arrows(ui_state.current_window)
 
 
 def handle_pagedown() -> None:
     """Handle page down key events to scroll the current window down."""
-    if ui_state.current_window == 0:
-        select_channel(ui_state.selected_channel + (channel_win.getmaxyx()[0] - 2))
-    elif ui_state.current_window == 1:
+    if ui_state.current_window == WINDOW_CHANNELS:
+        select_channel(ui_state.selected_channel + (channel_win.getmaxyx()[0] - 2))  # noqa: PLR2004
+    elif ui_state.current_window == WINDOW_MESSAGES:
         msg_line_count = messages_pad.getmaxyx()[0]
         ui_state.selected_message = min(
             ui_state.selected_message + get_msg_window_lines(messages_win, packetlog_win),
             msg_line_count - get_msg_window_lines(messages_win, packetlog_win),
         )
-        refresh_pad(1)
-    elif ui_state.current_window == 2:
-        select_node(ui_state.selected_node + (nodes_win.getmaxyx()[0] - 2))
+        refresh_pad(WINDOW_MESSAGES)
+    elif ui_state.current_window == WINDOW_NODES:
+        select_node(ui_state.selected_node + (nodes_win.getmaxyx()[0] - 2))  # noqa: PLR2004
     draw_window_arrows(ui_state.current_window)
 
 
@@ -331,28 +336,28 @@ def handle_leftright(char: int) -> None:
     ui_state.current_window = (ui_state.current_window + delta) % 3
     handle_resize(root_win, False)
 
-    if old_window == 0:
+    if old_window == WINDOW_CHANNELS:
         paint_frame(channel_win, selected=False)
-        refresh_pad(0)
-    if old_window == 1:
+        refresh_pad(WINDOW_CHANNELS)
+    if old_window == WINDOW_MESSAGES:
         paint_frame(messages_win, selected=False)
-        refresh_pad(1)
-    elif old_window == 2:
+        refresh_pad(WINDOW_MESSAGES)
+    elif old_window == WINDOW_NODES:
         paint_frame(nodes_win, selected=False)
-        refresh_pad(2)
+        refresh_pad(WINDOW_NODES)
 
     if not ui_state.single_pane_mode:
         draw_window_arrows(old_window)
 
-    if ui_state.current_window == 0:
+    if ui_state.current_window == WINDOW_CHANNELS:
         paint_frame(channel_win, selected=True)
-        refresh_pad(0)
-    elif ui_state.current_window == 1:
+        refresh_pad(WINDOW_CHANNELS)
+    elif ui_state.current_window == WINDOW_MESSAGES:
         paint_frame(messages_win, selected=True)
-        refresh_pad(1)
-    elif ui_state.current_window == 2:
+        refresh_pad(WINDOW_MESSAGES)
+    elif ui_state.current_window == WINDOW_NODES:
         paint_frame(nodes_win, selected=True)
-        refresh_pad(2)
+        refresh_pad(WINDOW_NODES)
 
     draw_window_arrows(ui_state.current_window)
 
@@ -376,35 +381,35 @@ def handle_function_keys(char: int) -> None:
     ui_state.current_window = target
     handle_resize(root_win, False)
 
-    if old_window == 0:
+    if old_window == WINDOW_CHANNELS:
         paint_frame(channel_win, selected=False)
-        refresh_pad(0)
-    elif old_window == 1:
+        refresh_pad(WINDOW_CHANNELS)
+    elif old_window == WINDOW_MESSAGES:
         paint_frame(messages_win, selected=False)
-        refresh_pad(1)
-    elif old_window == 2:
+        refresh_pad(WINDOW_MESSAGES)
+    elif old_window == WINDOW_NODES:
         paint_frame(nodes_win, selected=False)
-        refresh_pad(2)
+        refresh_pad(WINDOW_NODES)
 
     if not ui_state.single_pane_mode:
         draw_window_arrows(old_window)
 
-    if ui_state.current_window == 0:
+    if ui_state.current_window == WINDOW_CHANNELS:
         paint_frame(channel_win, selected=True)
-        refresh_pad(0)
-    elif ui_state.current_window == 1:
+        refresh_pad(WINDOW_CHANNELS)
+    elif ui_state.current_window == WINDOW_MESSAGES:
         paint_frame(messages_win, selected=True)
-        refresh_pad(1)
-    elif ui_state.current_window == 2:
+        refresh_pad(WINDOW_MESSAGES)
+    elif ui_state.current_window == WINDOW_NODES:
         paint_frame(nodes_win, selected=True)
-        refresh_pad(2)
+        refresh_pad(WINDOW_NODES)
 
     draw_window_arrows(ui_state.current_window)
 
 
 def handle_enter(input_text: str) -> str:
     """Handle Enter key events to send messages or select channels."""
-    if ui_state.current_window == 2:
+    if ui_state.current_window == WINDOW_NODES:
         node_list = ui_state.node_list
         if node_list[ui_state.selected_node] not in ui_state.channel_list:
             ui_state.channel_list.append(node_list[ui_state.selected_node])
@@ -417,7 +422,7 @@ def handle_enter(input_text: str) -> str:
             update_node_info_in_db(ui_state.channel_list[ui_state.selected_channel], chat_archived=False)
 
         ui_state.selected_node = 0
-        ui_state.current_window = 0
+        ui_state.current_window = WINDOW_CHANNELS
 
         handle_resize(root_win, False)
         draw_node_list()
@@ -429,7 +434,7 @@ def handle_enter(input_text: str) -> str:
     elif len(input_text) > 0:
         # TODO: This is a hack to prevent sending messages too quickly. Let's get errors from the node.
         now = time.monotonic()
-        if now - ui_state.last_sent_time < 2.5:
+        if now - ui_state.last_sent_time < 2.5:  # noqa: PLR2004
             contact.ui.dialog.dialog(
                 t("ui.dialog.slow_down_title", default="Slow down"),
                 t("ui.dialog.slow_down_body", default="Please wait 2 seconds between messages."),
@@ -441,15 +446,16 @@ def handle_enter(input_text: str) -> str:
         ui_state.last_sent_time = now
         entry_win.erase()
 
-        if ui_state.current_window == 0:
-            ui_state.current_window = 1
+        if ui_state.current_window == WINDOW_CHANNELS:
+            ui_state.current_window = WINDOW_MESSAGES
             handle_resize(root_win, False)
 
         return ""
     return input_text
 
 
-def handle_f5_key(stdscr: curses.window) -> None:
+def handle_f5_key(stdscr: curses.window) -> None:  # noqa: PLR0915, PLR0912
+    """Display node details dialog."""
     node = None
     try:
         node = interface_state.interface.nodesByNum[ui_state.node_list[ui_state.selected_node]]
@@ -483,9 +489,9 @@ def handle_f5_key(stdscr: curses.window) -> None:
                 snr = node["snr"]
                 snr_status = (
                     "🟢 Excellent"
-                    if snr > 10
+                    if snr > 10  # noqa: PLR2004
                     else (
-                        "🟡 Good" if snr > 3 else "🟠 Fair" if snr > -10 else "🔴 Poor" if snr > -20 else "💀 Very Poor"
+                        "🟡 Good" if snr > 3 else "🟠 Fair" if snr > -10 else "🔴 Poor" if snr > -20 else "💀 Very Poor"  # noqa: PLR2004
                     )
                 )
                 message_parts.append(f"• SNR: {snr}dB {snr_status}")
@@ -504,7 +510,7 @@ def handle_f5_key(stdscr: curses.window) -> None:
 
             if "batteryLevel" in metrics:
                 battery = metrics["batteryLevel"]
-                battery_emoji = "🟢" if battery > 50 else "🟡" if battery > 20 else "🔴"
+                battery_emoji = "🟢" if battery > 50 else "🟡" if battery > 20 else "🔴"  # noqa: PLR2004
                 voltage_info = f" ({metrics['voltage']}v)" if "voltage" in metrics else ""
                 message_parts.append(f"• Battery: {battery_emoji} {battery}%{voltage_info}")
 
@@ -513,12 +519,12 @@ def handle_f5_key(stdscr: curses.window) -> None:
 
             if "channelUtilization" in metrics:
                 util = metrics["channelUtilization"]
-                util_emoji = "🔴" if util > 80 else "🟡" if util > 50 else "🟢"
+                util_emoji = "🔴" if util > 80 else "🟡" if util > 50 else "🟢"  # noqa: PLR2004
                 message_parts.append(f"• Channel utilization: {util_emoji} {util:.2f}%")
 
             if "airUtilTx" in metrics:
                 air_util = metrics["airUtilTx"]
-                air_emoji = "🔴" if air_util > 80 else "🟡" if air_util > 50 else "🟢"
+                air_emoji = "🔴" if air_util > 80 else "🟡" if air_util > 50 else "🟢"  # noqa: PLR2004
                 message_parts.append(f"• Air utilization TX: {air_emoji} {air_util:.2f}%")
 
         message = "\n".join(message_parts)
@@ -579,7 +585,7 @@ def handle_backspace(entry_win: curses.window, input_text: str) -> str:
         input_text = input_text[:-1]
         y, x = entry_win.getyx()
         entry_win.move(y, x - 1)
-        entry_win.addch(" ")  #
+        entry_win.addch(" ")
         entry_win.move(y, x - 1)
     entry_win.refresh()
     return input_text
@@ -589,7 +595,7 @@ def handle_backtick(stdscr: curses.window) -> None:
     """Handle backtick key events to open the settings menu."""
     curses.curs_set(0)
     previous_window = ui_state.current_window
-    ui_state.current_window = 4
+    ui_state.current_window = WINDOW_LOG
     settings_menu(stdscr, interface_state.interface)
     ui_state.current_window = previous_window
     curses.curs_set(1)
@@ -653,7 +659,7 @@ def handle_ctrl_d() -> None:
             draw_channel_list()
             draw_messages_window()
 
-    if ui_state.current_window == 2:
+    if ui_state.current_window == WINDOW_NODES:
         curses.curs_set(0)
         confirmation = get_list_input(
             t(
@@ -671,8 +677,8 @@ def handle_ctrl_d() -> None:
             del interface_state.interface.nodesByNum[ui_state.node_list[ui_state.selected_node]]
 
             # Convert to "!hex" representation that interface.nodes uses
-            hexid = f"!{hex(ui_state.node_list[ui_state.selected_node])[2:]}"
-            del interface_state.interface.nodes[hexid]
+            hex_id = f"!{hex(ui_state.node_list[ui_state.selected_node])[2:]}"
+            del interface_state.interface.nodes[hex_id]
 
             ui_state.node_list.pop(ui_state.selected_node)
 
@@ -685,18 +691,18 @@ def handle_ctrl_d() -> None:
 
 def handle_ctrl_fslash() -> None:
     """Handle Ctrl + / key events to search in the current window."""
-    if ui_state.current_window == 2 or ui_state.current_window == 0:
+    if ui_state.current_window in {WINDOW_CHANNELS, WINDOW_NODES}:
         search(ui_state.current_window)
 
 
 def handle_ctrl_f(stdscr: curses.window) -> None:
     """Handle Ctrl + F key events to toggle favorite status of the selected node."""
-    if ui_state.current_window == 2:
-        selectedNode = interface_state.interface.nodesByNum[ui_state.node_list[ui_state.selected_node]]
+    if ui_state.current_window == WINDOW_NODES:
+        selected_node = interface_state.interface.nodesByNum[ui_state.node_list[ui_state.selected_node]]
 
-        curses.curs_set(0)
+        curses.curs_set(0)  # noqa: PLR2004
 
-        if "isFavorite" not in selectedNode or selectedNode["isFavorite"] == False:
+        if "isFavorite" not in selected_node or not selected_node["isFavorite"]:
             confirmation = get_list_input(
                 t(
                     "ui.confirm.set_favorite",
@@ -735,12 +741,12 @@ def handle_ctrl_f(stdscr: curses.window) -> None:
 
 def handle_ctlr_g(stdscr: curses.window) -> None:
     """Handle Ctrl + G key events to toggle ignored status of the selected node."""
-    if ui_state.current_window == 2:
-        selectedNode = interface_state.interface.nodesByNum[ui_state.node_list[ui_state.selected_node]]
+    if ui_state.current_window == WINDOW_NODES:
+        selected_node = interface_state.interface.nodesByNum[ui_state.node_list[ui_state.selected_node]]
 
-        curses.curs_set(0)
+        curses.curs_set(0)  # noqa: PLR2004
 
-        if "isIgnored" not in selectedNode or selectedNode["isIgnored"] == False:
+        if "isIgnored" not in selected_node or not selected_node["isIgnored"]:
             confirmation = get_list_input(
                 t(
                     "ui.confirm.set_ignored",
@@ -790,14 +796,17 @@ def draw_channel_list() -> None:
             channel_name = get_name_from_database(channel, type="long")
             if channel_name is None:
                 continue
-            channel = channel_name
+            item_display_name = channel_name
+        else:
+            item_display_name = channel
 
         # Determine whether to add the notification
         notification = " " + config.notification_symbol if idx in ui_state.notifications else ""
 
         # Truncate the channel name if it's too long to fit in the window
         truncated_channel = (
-            (channel[: win_width - 5] + "-" if len(channel) > win_width - 5 else channel) + notification
+            (item_display_name[: win_width - 5] + "-" if len(item_display_name) > win_width - 5 else item_display_name)
+            + notification
         ).ljust(win_width - 3)
 
         color = get_color("channel_list")
@@ -860,19 +869,19 @@ def draw_messages_window(scroll_to_bottom: bool = False) -> None:
         ui_state.selected_message = max(min(ui_state.selected_message, msg_line_count - visible_lines), 0)
 
     messages_win.refresh()
-    refresh_pad(1)
+    refresh_pad(1)  # noqa: PLR2004
     draw_packetlog_win()
-    draw_window_arrows(1)
+    draw_window_arrows(WINDOW_MESSAGES)
     messages_win.refresh()
-    if ui_state.current_window == 4:
+    if ui_state.current_window == WINDOW_LOG:
         menu_state.need_redraw = True
 
 
 def draw_node_list() -> None:
     """Update the nodes list window and pad based on the current state."""
-    global nodes_pad
+    global nodes_pad  # noqa: PLW0603
 
-    if ui_state.current_window != 2 and ui_state.single_pane_mode:
+    if ui_state.current_window != 2 and ui_state.single_pane_mode:  # noqa: PLR2004
         return
 
     # This didn't work, for some reason an error is thown on startup, so we just create the pad every time
@@ -893,15 +902,6 @@ def draw_node_list() -> None:
         secure = "user" in node and "publicKey" in node["user"] and node["user"]["publicKey"]
         status_icon = "🔐" if secure else "🔓"
         node_name = get_name_from_database(node_num, "long")
-        user_name = node["user"]["shortName"]
-
-        uptime_str = ""
-        if "deviceMetrics" in node and "uptimeSeconds" in node["deviceMetrics"]:
-            uptime_str = f" / Up: {get_readable_duration(node['deviceMetrics']['uptimeSeconds'])}"
-
-        last_heard_str = f"  ■  {get_time_ago(node['lastHeard'])}" if node.get("lastHeard") else ""
-        hops_str = f"  ■  Hops: {node['hopsAway']}" if "hopsAway" in node else ""
-        snr_str = f"  ■  SNR: {node['snr']}dB" if node.get("hopsAway") == 0 and "snr" in node else ""
 
         # Future node name custom formatting possible
         node_str = f"{status_icon} {node_name}"
@@ -912,13 +912,16 @@ def draw_node_list() -> None:
         if "isIgnored" in node and node["isIgnored"]:
             color = "node_ignored"
         nodes_pad.addstr(
-            i, 1, node_str, get_color(color, reverse=ui_state.selected_node == i and ui_state.current_window == 2)
+            i,
+            1,
+            node_str,
+            get_color(color, reverse=ui_state.selected_node == i and ui_state.current_window == 2),  # noqa: PLR2004
         )
 
-    paint_frame(nodes_win, selected=(ui_state.current_window == 2))
+    paint_frame(nodes_win, selected=(ui_state.current_window == 2))  # noqa: PLR2004
     nodes_win.refresh()
-    refresh_pad(2)
-    draw_window_arrows(2)
+    refresh_pad(2)  # noqa: PLR2004
+    draw_window_arrows(2)  # noqa: PLR2004
     nodes_win.refresh()
 
     # Restore cursor to input field
@@ -926,7 +929,7 @@ def draw_node_list() -> None:
     curses.curs_set(1)
     entry_win.refresh()
 
-    if ui_state.current_window == 4:
+    if ui_state.current_window == 4:  # noqa: PLR2004
         menu_state.need_redraw = True
 
 
@@ -1034,7 +1037,7 @@ def draw_packetlog_win() -> None:
             span += column
 
         # Add headers
-        headers = f"{'From':<{columns[0]}} {'To':<{columns[1]}} {'Port':<{columns[2]}} {'Payload':<{width-span}}"
+        headers = f"{'From':<{columns[0]}} {'To':<{columns[1]}} {'Port':<{columns[2]}} {'Payload':<{width - span}}"
         packetlog_win.addstr(
             1, 1, headers[: width - 2], get_color("log_header", underline=True)
         )  # Truncate headers if they exceed window width
@@ -1058,11 +1061,11 @@ def draw_packetlog_win() -> None:
                 parsed_payload = "NO KEY"
 
             # Combine and truncate if necessary
-            logString = f"{from_id} {to_id} {port} {parsed_payload}"
-            logString = logString[: width - 3]
+            log_string = f"{from_id} {to_id} {port} {parsed_payload}"
+            log_string = log_string[: width - 3]  # noqa: PLR2004
 
             # Add to the window
-            packetlog_win.addstr(i + 2, 1, logString, get_color("log"))
+            packetlog_win.addstr(i + 2, 1, log_string, get_color("log"))  # noqa: PLR2004
 
         paint_frame(packetlog_win, selected=False)
 
@@ -1088,16 +1091,16 @@ def search(win: int) -> None:
         draw_centered_text_field(entry_win, f"Search: {search_text}", 0, get_color("input"))
         char = entry_win.get_wch()
 
-        if char in (chr(27), chr(curses.KEY_ENTER), chr(10), chr(13)):
+        if char in (chr(27), chr(curses.KEY_ENTER), chr(10), chr(13)):  # noqa: PLR2004
             break
         elif char == "\t":
-            start_idx = ui_state.selected_node + 1 if win == 2 else ui_state.selected_channel + 1
+            start_idx = ui_state.selected_node + 1 if win == WINDOW_NODES else ui_state.selected_channel + 1
         elif char in (curses.KEY_BACKSPACE, chr(127)):
             if search_text:
                 search_text = search_text[:-1]
                 y, x = entry_win.getyx()
                 entry_win.move(y, x - 1)
-                entry_win.addch(" ")  #
+                entry_win.addch(" ")
                 entry_win.move(y, x - 1)
                 entry_win.erase()
                 entry_win.refresh()
@@ -1106,8 +1109,8 @@ def search(win: int) -> None:
 
         search_text_caseless = search_text.casefold()
 
-        l = ui_state.node_list if win == 2 else ui_state.channel_list
-        for i, n in enumerate(l[start_idx:] + l[:start_idx]):
+        node_list_to_search = ui_state.node_list if win == 2 else ui_state.channel_list  # noqa: PLR2004
+        for i, n in enumerate(node_list_to_search[start_idx:] + node_list_to_search[:start_idx]):
             if (
                 isinstance(n, int)
                 and search_text_caseless in get_name_from_database(n, "long").casefold()
@@ -1115,7 +1118,7 @@ def search(win: int) -> None:
                 and search_text_caseless in get_name_from_database(n, "short").casefold()
                 or search_text_caseless in str(n).casefold()
             ):
-                select_func((i + start_idx) % len(l))
+                select_func((i + start_idx) % len(node_list_to_search))
                 break
 
     entry_win.erase()
@@ -1129,7 +1132,7 @@ def refresh_pad(window: int) -> None:
     # Derive the target box and pad for the requested window
     win_height = channel_win.getmaxyx()[0]
 
-    if window == 1:
+    if window == 1:  # noqa: PLR2004
         pad = messages_pad
         box = messages_win
         lines = get_msg_window_lines(messages_win, packetlog_win)
@@ -1140,7 +1143,7 @@ def refresh_pad(window: int) -> None:
             packetlog_win.box()
             packetlog_win.refresh()
 
-    elif window == 2:
+    elif window == 2:  # noqa: PLR2004
         pad = nodes_pad
         box = nodes_win
         lines = box.getmaxyx()[0] - 2

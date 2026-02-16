@@ -1,6 +1,5 @@
 import datetime
 import time
-from typing import Union
 
 from google.protobuf.message import DecodeError
 from meshtastic import protocols
@@ -9,6 +8,16 @@ from meshtastic.protobuf import config_pb2, portnums_pb2
 import contact.ui.default_config as config
 import contact.utilities.telemetry_beautifier as tb
 from contact.utilities.singleton import interface_state, ui_state
+
+DAYS_IN_YEAR = 365
+DAYS_IN_MONTH = 30
+DAYS_IN_WEEK = 7
+SECONDS_IN_HOUR = 3600
+SECONDS_IN_MINUTE = 60
+
+KEY_ESC = 27
+KEY_BACKSPACE = 127
+KEY_DELETE = 127
 
 
 def get_channels():
@@ -44,7 +53,7 @@ def get_channels():
 
 def get_node_list():
     if interface_state.interface.nodes:
-        my_node_num = interface_state.myNodeNum
+        my_node_num = interface_state.my_node_num
 
         def node_sort(node):
             if config.node_sort == "lastHeard":
@@ -79,10 +88,10 @@ def refresh_node_list():
     return False
 
 
-def get_nodeNum():
-    myinfo = interface_state.interface.getMyNodeInfo()
-    myNodeNum = myinfo["num"]
-    return myNodeNum
+def get_node_num():
+    my_info = interface_state.interface.getMyNodeInfo()
+    my_node_num = my_info["num"]
+    return my_node_num
 
 
 def decimal_to_hex(decimal_number):
@@ -99,23 +108,23 @@ def get_time_val_units(time_delta):
     value = 0
     unit = ""
 
-    if time_delta.days > 365:
-        value = time_delta.days // 365
+    if time_delta.days > DAYS_IN_YEAR:
+        value = time_delta.days // DAYS_IN_YEAR
         unit = "y"
-    elif time_delta.days > 30:
-        value = time_delta.days // 30
+    elif time_delta.days > DAYS_IN_MONTH:
+        value = time_delta.days // DAYS_IN_MONTH
         unit = "mon"
-    elif time_delta.days > 7:
-        value = time_delta.days // 7
+    elif time_delta.days > DAYS_IN_WEEK:
+        value = time_delta.days // DAYS_IN_WEEK
         unit = "w"
     elif time_delta.days > 0:
         value = time_delta.days
         unit = "d"
-    elif time_delta.seconds > 3600:
-        value = time_delta.seconds // 3600
+    elif time_delta.seconds > SECONDS_IN_HOUR:
+        value = time_delta.seconds // SECONDS_IN_HOUR
         unit = "h"
-    elif time_delta.seconds > 60:
-        value = time_delta.seconds // 60
+    elif time_delta.seconds > SECONDS_IN_MINUTE:
+        value = time_delta.seconds // SECONDS_IN_MINUTE
         unit = "min"
     else:
         value = time_delta.seconds
@@ -170,7 +179,7 @@ def add_new_message(channel_id, prefix, message):
     ui_state.all_messages[channel_id].append((f"{ts_str}{prefix}", message))
 
 
-def parse_protobuf(packet: dict) -> Union[str, dict]:
+def parse_protobuf(packet: dict) -> str | dict:  # noqa: PLR0911
     """Attempt to parse a decoded payload using the registered protobuf handler."""
     try:
         decoded = packet.get("decoded") or {}

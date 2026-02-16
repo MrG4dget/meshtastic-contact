@@ -3,7 +3,7 @@ from pathlib import Path
 
 # Add ci directory to path to import validate_agent_assets
 sys.path.append(str(Path(__file__).resolve().parents[1] / "ci"))
-import validate_agent_assets
+import validate_agent_assets  # noqa: E402
 
 
 def test_parse_frontmatter_valid():

@@ -1,5 +1,3 @@
-from typing import Optional
-
 from contact.utilities import i18n
 
 
@@ -12,11 +10,11 @@ def parse_ini_file(ini_file_path: str) -> tuple[dict[str, str], dict[str, str]]:
 
     field_mapping: dict[str, str] = {}
     help_text: dict[str, str] = {}
-    current_section: Optional[str] = None
+    current_section: str | None = None
 
     with open(ini_file_path, encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
+        for raw_line in f:
+            line = raw_line.strip()
 
             # Skip empty lines and comments
             if not line or line.startswith(";") or line.startswith("#"):
@@ -28,8 +26,8 @@ def parse_ini_file(ini_file_path: str) -> tuple[dict[str, str], dict[str, str]]:
                 continue
 
             # Parse lines like: key, "Human-readable name", "helptext"
-            parts = [p.strip().strip('"') for p in line.split(",", 2)]
-            if len(parts) >= 2:
+            parts = [p.strip().strip('"') for p in line.split(",", 2)]  # noqa: PLR2004
+            if len(parts) >= 2:  # noqa: PLR2004
                 key = parts[0]
 
                 # If key is 'title', map directly to the section
@@ -43,7 +41,7 @@ def parse_ini_file(ini_file_path: str) -> tuple[dict[str, str], dict[str, str]]:
                 field_mapping[full_key] = human_readable_name
 
                 # Handle help text or default
-                help = parts[2] if len(parts) == 3 and parts[2] else default_help
+                help = parts[2] if len(parts) == 3 and parts[2] else default_help  # noqa: PLR2004
                 help_text[full_key] = help
 
             else:

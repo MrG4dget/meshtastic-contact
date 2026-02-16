@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 
@@ -9,32 +10,32 @@ from meshtastic.util import camel_to_snake, fromStr, snake_to_camel
 # defs are from meshtastic/python/main
 
 
-def traverseConfig(config_root, config, interface_config) -> bool:
+def traverse_config(config_root, config, interface_config) -> bool:
     """Iterate through current config level preferences and either traverse deeper if preference is a dict or set preference"""
     snake_name = camel_to_snake(config_root)
     for pref in config:
         pref_name = f"{snake_name}.{pref}"
         if isinstance(config[pref], dict):
-            traverseConfig(pref_name, config[pref], interface_config)
+            traverse_config(pref_name, config[pref], interface_config)
         else:
-            setPref(interface_config, pref_name, config[pref])
+            set_pref(interface_config, pref_name, config[pref])
 
     return True
 
 
-def splitCompoundName(comp_name: str) -> list[str]:
+def split_compound_name(comp_name: str) -> list[str]:
     """Split compound (dot separated) preference name into parts"""
     name: list[str] = comp_name.split(".")
-    if len(name) < 2:
+    if len(name) < 2:  # noqa: PLR2004
         name[0] = comp_name
         name.append(comp_name)
     return name
 
 
-def setPref(config, comp_name, raw_val) -> bool:
+def set_pref(config, comp_name, raw_val) -> bool:  # noqa: PLR0915, PLR0912
     """Set a channel or preferences value"""
 
-    name = splitCompoundName(comp_name)
+    name = split_compound_name(comp_name)
 
     snake_name = camel_to_snake(name[-1])
     camel_name = snake_to_camel(name[-1])
@@ -42,9 +43,9 @@ def setPref(config, comp_name, raw_val) -> bool:
     logging.debug(f"snake_name:{snake_name}")
     logging.debug(f"camel_name:{camel_name}")
 
-    objDesc = config.DESCRIPTOR
+    obj_desc = config.DESCRIPTOR
     config_part = config
-    config_type = objDesc.fields_by_name.get(name[0])
+    config_type = obj_desc.fields_by_name.get(name[0])
     if config_type and config_type.message_type is not None:
         for name_part in name[1:-1]:
             part_snake_name = camel_to_snake(name_part)
@@ -66,22 +67,22 @@ def setPref(config, comp_name, raw_val) -> bool:
         val = raw_val
     logging.debug(f"valStr:{raw_val} val:{val}")
 
-    if snake_name == "wifi_psk" and len(str(raw_val)) < 8:
+    if snake_name == "wifi_psk" and len(str(raw_val)) < 8:  # noqa: PLR2004
         logging.info("Warning: network.wifi_psk must be 8 or more characters.")
         return False
 
-    enumType = pref.enum_type
+    enum_type = pref.enum_type
     # pylint: disable=C0123
-    if enumType and type(val) == str:
+    if enum_type and isinstance(val, str):
         # We've failed so far to convert this string into an enum, try to find it by reflection
-        e = enumType.values_by_name.get(val)
+        e = enum_type.values_by_name.get(val)
         if e:
             val = e.number
         else:
             logging.info(f"{name[0]}.{uni_name} does not have an enum called {val}, so you can not set it.")
             logging.info("Choices in sorted order are:")
             names = []
-            for f in enumType.values:
+            for f in enum_type.values:
                 # Note: We must use the value of the enum (regardless if camel or snake case)
                 names.append(f"{f.name}")
             for temp_name in sorted(names):
@@ -100,7 +101,7 @@ def setPref(config, comp_name, raw_val) -> bool:
             # The setter didn't like our arg type guess try again as a string
             config_values = getattr(config_part, config_type.name)
             setattr(config_values, pref.name, str(val))
-    elif type(val) == list:
+    elif isinstance(val, list):
         new_vals = [fromStr(x) for x in val]
         config_values = getattr(config, config_type.name)
         getattr(config_values, pref.name)[:] = new_vals
@@ -123,28 +124,25 @@ def setPref(config, comp_name, raw_val) -> bool:
     return True
 
 
-def config_import(interface, filename):
+def config_import(interface, filename):  # noqa: PLR0915, PLR0912
     with open(filename, encoding="utf8") as file:
         configuration = yaml.safe_load(file)
-        closeNow = True
+        close_now = True  # noqa: F841
 
         interface.getNode("^local", False).beginSettingsTransaction()
 
         if "owner" in configuration:
             logging.info(f"Setting device owner to {configuration['owner']}")
-            waitForAckNak = True
             interface.getNode("^local", False).setOwner(configuration["owner"])
             time.sleep(0.5)
 
         if "owner_short" in configuration:
             logging.info(f"Setting device owner short to {configuration['owner_short']}")
-            waitForAckNak = True
             interface.getNode("^local", False).setOwner(long_name=None, short_name=configuration["owner_short"])
             time.sleep(0.5)
 
         if "ownerShort" in configuration:
             logging.info(f"Setting device owner short to {configuration['ownerShort']}")
-            waitForAckNak = True
             interface.getNode("^local", False).setOwner(long_name=None, short_name=configuration["ownerShort"])
             time.sleep(0.5)
 
@@ -162,7 +160,6 @@ def config_import(interface, filename):
             alt = 0
             lat = 0.0
             lon = 0.0
-            localConfig = interface.localNode.localConfig
 
             if "alt" in configuration["location"]:
                 alt = int(configuration["location"]["alt"] or 0)
@@ -178,19 +175,19 @@ def config_import(interface, filename):
             time.sleep(0.5)
 
         if "config" in configuration:
-            localConfig = interface.getNode("^local").localConfig
+            local_config = interface.getNode("^local").localConfig
             for section in configuration["config"]:
-                traverseConfig(section, configuration["config"][section], localConfig)
+                traverse_config(section, configuration["config"][section], local_config)
                 interface.getNode("^local").writeConfig(camel_to_snake(section))
                 time.sleep(0.5)
 
         if "module_config" in configuration:
-            moduleConfig = interface.getNode("^local").moduleConfig
+            module_config = interface.getNode("^local").moduleConfig
             for section in configuration["module_config"]:
-                traverseConfig(
+                traverse_config(
                     section,
                     configuration["module_config"][section],
-                    moduleConfig,
+                    module_config,
                 )
                 interface.getNode("^local").writeConfig(camel_to_snake(section))
                 time.sleep(0.5)
@@ -199,9 +196,9 @@ def config_import(interface, filename):
         logging.info("Writing modified configuration to device")
 
 
-def config_export(interface) -> str:
+def config_export(interface) -> str:  # noqa: PLR0915, PLR0912
     """used in --export-config"""
-    configObj = {}
+    config_obj = {}
 
     owner = interface.getLongName()
     owner_short = interface.getShortName()
@@ -217,19 +214,19 @@ def config_export(interface) -> str:
         alt = pos.get("altitude")
 
     if owner:
-        configObj["owner"] = owner
+        config_obj["owner"] = owner
     if owner_short:
-        configObj["owner_short"] = owner_short
+        config_obj["owner_short"] = owner_short
     if channel_url:
         if mt_config.camel_case:
-            configObj["channelUrl"] = channel_url
+            config_obj["channelUrl"] = channel_url
         else:
-            configObj["channel_url"] = channel_url
+            config_obj["channel_url"] = channel_url
     # lat and lon don't make much sense without the other (so fill with 0s), and alt isn't meaningful without both
     if lat or lon:
-        configObj["location"] = {"lat": lat or float(0), "lon": lon or float(0)}
+        config_obj["location"] = {"lat": lat or float(0), "lon": lon or float(0)}
         if alt:
-            configObj["location"]["alt"] = alt
+            config_obj["location"]["alt"] = alt
 
     config = MessageToDict(interface.localNode.localConfig)  # checkme - Used as a dictionary here and a string below
     if config:
@@ -250,9 +247,9 @@ def config_export(interface) -> str:
                     for i in range(len(prefs[pref]["adminKey"])):
                         prefs[pref]["adminKey"][i] = "base64:" + prefs[pref]["adminKey"][i]
         if mt_config.camel_case:
-            configObj["config"] = config  # Identical command here and 2 lines below?
+            config_obj["config"] = config  # Identical command here and 2 lines below?
         else:
-            configObj["config"] = config
+            config_obj["config"] = config
 
     module_config = MessageToDict(interface.localNode.moduleConfig)
     if module_config:
@@ -262,13 +259,59 @@ def config_export(interface) -> str:
             if len(module_config[pref]) > 0:
                 prefs[pref] = module_config[pref]
         if mt_config.camel_case:
-            configObj["module_config"] = prefs
+            config_obj["module_config"] = prefs
         else:
-            configObj["module_config"] = prefs
+            config_obj["module_config"] = prefs
 
     config_txt = "# start of Meshtastic configure yaml\n"  # checkme - "config" (now changed to config_out)
     # was used as a string here and a Dictionary above
-    config_txt += yaml.dump(configObj)
+    config_txt += yaml.dump(config_obj)
 
     # logging.info(config_txt)
     return config_txt
+
+
+def save_config(interface):  # noqa: PLR0915, PLR0912
+    """used in --save-config"""
+    with open("config.json") as f:
+        configuration = json.load(f)
+        close_now = False  # noqa: F841
+        wait_for_ack_nak = False
+        if "owner" in configuration:
+            logging.info(f"Setting device owner to {configuration['owner']}")
+            wait_for_ack_nak = True
+            interface.getNode("^local", False).setOwner(long_name=configuration["owner"])
+            time.sleep(0.5)
+
+        if "ownerShort" in configuration:
+            logging.info(f"Setting device owner short to {configuration['ownerShort']}")
+            wait_for_ack_nak = True
+            interface.getNode("^local", False).setOwner(long_name=None, short_name=configuration["ownerShort"])
+            time.sleep(0.5)
+
+        if "channel_url" in configuration:
+            logging.info(f"Setting channel URL to {configuration['channel_url']}")
+            wait_for_ack_nak = True
+            interface.setURL(configuration["channel_url"])
+            time.sleep(0.5)
+
+        if "config" in configuration:
+            local_config = interface.getNode("^local").localConfig
+            for section in configuration["config"]:
+                traverse_config(section, configuration["config"][section], local_config)
+                interface.getNode("^local").writeConfig(camel_to_snake(section))
+                time.sleep(0.5)
+
+        if "module_config" in configuration:
+            module_config = interface.getNode("^local").moduleConfig
+            for section in configuration["module_config"]:
+                traverse_config(
+                    section,
+                    configuration["module_config"][section],
+                    module_config,
+                )
+                interface.getNode("^local").writeConfig(camel_to_snake(section))
+                time.sleep(0.5)
+
+        if wait_for_ack_nak:
+            logging.info("Writing modified configuration to device")

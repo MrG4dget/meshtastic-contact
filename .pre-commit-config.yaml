@@ -21,14 +21,14 @@ repos:
     hooks:
       - id: sync-shims
         name: Sync Agent Shims
-        entry: python3 scripts/agents/sync_shims.py
+        entry: python scripts/agents/sync_shims.py
         language: system
         files: ^(AGENTS\.md|docs/agents/.*|\.agents/skills/.*|scripts/agents/.*)$
         pass_filenames: false
 
       - id: validate-agent-assets
         name: Validate Agent Assets
-        entry: python3 ci/validate_agent_assets.py
+        entry: python ci/validate_agent_assets.py
         language: system
         files: ^(AGENTS\.md|docs/agents/.*|\.agents/skills/.*|\.claude/.*|\.gemini/.*|\.agent/.*|\.cursor/.*)$
         pass_filenames: false

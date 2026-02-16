@@ -56,7 +56,7 @@ field_mapping, help_text = parse_ini_file(translation_file)
 
 
 def reload_translations() -> None:
-    global translation_file, field_mapping, help_text
+    global translation_file, field_mapping, help_text  # noqa: PLW0603
     translation_file = config.get_localisation_file(config.language)
     field_mapping, help_text = parse_ini_file(translation_file)
 
@@ -76,7 +76,7 @@ def get_translated_header(menu_path: list[str]) -> str:
     return " > ".join(translated_parts)
 
 
-def display_menu() -> tuple[object, object]:
+def display_menu() -> tuple[object, object]:  # noqa: PLR0915
     # if help_win:
     #     min_help_window_height = 6
     # else:
@@ -94,8 +94,8 @@ def display_menu() -> tuple[object, object]:
     start_x = (curses.COLS - w) // 2
 
     # Calculate remaining space for help window
-    global max_help_lines
-    remaining_space = curses.LINES - (start_y + menu_height + 2)  # +2 for padding
+    global max_help_lines  # noqa: PLW0603
+    remaining_space = curses.LINES - (start_y + menu_height + 2)  # +2 for padding  # noqa: PLR2004
     max_help_lines = max(remaining_space, 1)  # Ensure at least 1 lines for help
 
     menu_win = curses.newwin(menu_height, w, start_y, start_x)
@@ -109,9 +109,9 @@ def display_menu() -> tuple[object, object]:
     menu_pad.bkgd(get_color("background"))
 
     header = get_translated_header(menu_state.menu_path)
-    if len(header) > w - 4:
-        header = header[: w - 7] + "..."
-    menu_win.addstr(1, 2, header, get_color("settings_breadcrumbs", bold=True))
+    if len(header) > w - 4:  # noqa: PLR2004
+        header = header[: w - 7] + "..."  # noqa: PLR2004
+    menu_win.addstr(1, 2, header, get_color("settings_breadcrumbs", bold=True))  # noqa: PLR2004
 
     transformed_path = transform_menu_path(menu_state.menu_path)
 
@@ -133,20 +133,20 @@ def display_menu() -> tuple[object, object]:
                 except ipaddress.AddressValueError:
                     pass
 
-        display_option = f"{display_name}"[: w // 2 - 2]
-        display_value = f"{current_value}"[: w // 2 - 4]
+        display_option = f"{display_name}"[: w // 2 - 2]  # noqa: PLR2004
+        display_value = f"{current_value}"[: w // 2 - 4]  # noqa: PLR2004
 
         try:
             color = get_color(
                 "settings_sensitive" if option in sensitive_settings else "settings_default",
                 reverse=(idx == menu_state.selected_index),
             )
-            menu_pad.addstr(idx, 0, f"{display_option:<{w // 2 - 2}} {display_value}".ljust(w - 8), color)
+            menu_pad.addstr(idx, 0, f"{display_option:<{w // 2 - 2}} {display_value}".ljust(w - 8), color)  # noqa: PLR2004
         except curses.error:
             pass
 
     if menu_state.show_save_option:
-        save_position = menu_height - 2
+        save_position = menu_height - 2  # noqa: PLR2004
         save_label = t("ui.save_changes", default=save_option)
         menu_win.addstr(
             save_position,
@@ -162,15 +162,15 @@ def display_menu() -> tuple[object, object]:
     menu_pad.refresh(
         menu_state.start_index[-1],
         0,
-        menu_win.getbegyx()[0] + 3,
-        menu_win.getbegyx()[1] + 4,
-        menu_win.getbegyx()[0] + 3 + menu_win.getmaxyx()[0] - 5 - (2 if menu_state.show_save_option else 0),
-        menu_win.getbegyx()[1] + menu_win.getmaxyx()[1] - 4,
+        menu_win.getbegyx()[0] + 3,  # noqa: PLR2004
+        menu_win.getbegyx()[1] + 4,  # noqa: PLR2004
+        menu_win.getbegyx()[0] + 3 + menu_win.getmaxyx()[0] - 5 - (2 if menu_state.show_save_option else 0),  # noqa: PLR2004
+        menu_win.getbegyx()[1] + menu_win.getmaxyx()[1] - 4,  # noqa: PLR2004
     )
     curses.curs_set(0)
 
     max_index = num_items + (1 if menu_state.show_save_option else 0) - 1
-    visible_height = menu_win.getmaxyx()[0] - 5 - (2 if menu_state.show_save_option else 0)
+    visible_height = menu_win.getmaxyx()[0] - 5 - (2 if menu_state.show_save_option else 0)  # noqa: PLR2004
 
     draw_arrows(menu_win, visible_height, max_index, menu_state.start_index, menu_state.show_save_option)
 
@@ -184,7 +184,7 @@ def draw_help_window(
     max_help_lines: int,
     transformed_path: list[str],
 ) -> None:
-    global help_win
+    global help_win  # noqa: PLW0603
 
     if "help_win" not in globals():
         help_win = None  # Initialize if it does not exist
@@ -209,7 +209,7 @@ def get_input_type_for_field(field) -> type:
         return str
 
 
-def settings_menu(stdscr: object, interface: object) -> None:
+def settings_menu(stdscr: object, interface: object) -> None:  # noqa: PLR0912, PLR0915
     curses.update_lines_cols()
 
     menu = generate_menu_from_protobuf(interface)
@@ -230,9 +230,9 @@ def settings_menu(stdscr: object, interface: object) -> None:
             # Determine if save option should be shown
             path = menu_state.menu_path
             menu_state.show_save_option = (
-                (len(path) > 2 and ("Radio Settings" in path or "Module Settings" in path))
-                or (len(path) == 2 and "User Settings" in path)
-                or (len(path) == 3 and "Channels" in path)
+                (len(path) > 2 and ("Radio Settings" in path or "Module Settings" in path))  # noqa: PLR2004
+                or (len(path) == 2 and "User Settings" in path)  # noqa: PLR2004
+                or (len(path) == 3 and "Channels" in path)  # noqa: PLR2004
             )
 
             # Display the menu
@@ -525,7 +525,7 @@ def settings_menu(stdscr: object, interface: object) -> None:
                         new_value = new_value == "True"
                         menu_state.current_menu[selected_option] = (field, new_value)
 
-                    for option, (field, value) in menu_state.current_menu.items():
+                    for option, (_, value) in menu_state.current_menu.items():
                         modified_settings[option] = value
 
                     menu_state.start_index.pop()
@@ -548,7 +548,7 @@ def settings_menu(stdscr: object, interface: object) -> None:
                     new_value = current_value if new_values is None else [base64.b64decode(key) for key in new_values]
                     menu_state.start_index.pop()
 
-                elif field.type == 8:  # Handle boolean type
+                elif field.type == 8:  # Handle boolean type  # noqa: PLR2004
                     new_value = get_list_input(human_readable_name, str(current_value), ["True", "False"])
                     if new_value == "Not Set":
                         pass  # Leave it as-is
@@ -567,11 +567,11 @@ def settings_menu(stdscr: object, interface: object) -> None:
                     new_value = enum_options.get(new_value_name, current_value)
                     menu_state.start_index.pop()
 
-                elif field.type == 7:  # Field type 7 corresponds to FIXED32
+                elif field.type == 7:  # Field type 7 corresponds to FIXED32  # noqa: PLR2004
                     new_value = get_fixed32_input(current_value)
                     menu_state.start_index.pop()
 
-                elif field.type == 13:  # Field type 13 corresponds to UINT32
+                elif field.type == 13:  # Field type 13 corresponds to UINT32  # noqa: PLR2004
                     input_type = get_input_type_for_field(field)
                     new_value = get_text_input(
                         f"{human_readable_name} is currently: {current_value}", selected_option, input_type
@@ -579,7 +579,7 @@ def settings_menu(stdscr: object, interface: object) -> None:
                     new_value = current_value if new_value is None else int(new_value)
                     menu_state.start_index.pop()
 
-                elif field.type == 2:  # Field type 13 corresponds to INT64
+                elif field.type == 2:  # Field type 13 corresponds to INT64  # noqa: PLR2004
                     input_type = get_input_type_for_field(field)
                     new_value = get_text_input(
                         f"{human_readable_name} is currently: {current_value}", selected_option, input_type
@@ -623,7 +623,7 @@ def settings_menu(stdscr: object, interface: object) -> None:
 
         elif key == curses.KEY_LEFT:
             # If we are at the main menu and there are unsaved changes, prompt to save
-            if len(menu_state.menu_path) == 3 and modified_settings:
+            if len(menu_state.menu_path) == 3 and modified_settings:  # noqa: PLR2004
                 current_section = menu_state.menu_path[-1]
                 save_prompt = get_list_input(
                     t(
@@ -670,7 +670,7 @@ def settings_menu(stdscr: object, interface: object) -> None:
                 menu_state.selected_index = menu_state.menu_index.pop()
                 menu_state.start_index.pop()
 
-        elif key == 27:  # Escape key
+        elif key == 27:  # Escape key  # noqa: PLR2004
             menu_win.erase()
             menu_win.refresh()
             break

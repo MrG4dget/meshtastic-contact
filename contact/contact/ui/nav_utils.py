@@ -1,6 +1,6 @@
 import curses
 import re
-from typing import Any, Optional
+from typing import Any
 from unicodedata import east_asian_width
 
 from contact.ui.colors import get_color
@@ -31,7 +31,7 @@ def get_save_option_label() -> str:
     return t("ui.save_changes", default=save_option)
 
 
-def move_highlight(
+def move_highlight(  # noqa: PLR0912
     old_idx: int, options: list[str], menu_win: curses.window, menu_pad: curses.window, **kwargs: Any
 ) -> None:
     show_save_option = None
@@ -164,16 +164,16 @@ def draw_arrows(
             win.addstr(visible_height + 3, 2, " ", get_color("settings_default"))
 
 
-def update_help_window(
+def update_help_window(  # noqa: PLR0913
     help_win: object,  # curses window or None
     help_text: dict[str, str],
     transformed_path: list[str],
-    selected_option: Optional[str],
+    selected_option: str | None,
     max_help_lines: int,
     width: int,
     help_y: int,
     help_x: int,
-) -> object:  # returns a curses window
+) -> object:  # noqa: PLR0913
     """Handles rendering the help window consistently."""
 
     # Clamp target position and width to the current terminal size
@@ -232,7 +232,7 @@ def update_help_window(
 
 
 def get_wrapped_help_text(
-    help_text: dict[str, str], transformed_path: list[str], selected_option: Optional[str], width: int, max_lines: int
+    help_text: dict[str, str], transformed_path: list[str], selected_option: str | None, width: int, max_lines: int
 ) -> list[WrappedLine]:
     """Fetches and formats help text for display, ensuring it fits within the allowed lines."""
 
@@ -368,7 +368,7 @@ def wrap_text(text: str, wrap_width: int) -> list[str]:
     return wrapped_lines
 
 
-def move_main_highlight(
+def move_main_highlight(  # noqa: PLR0913
     old_idx: int, new_idx, options: list[str], menu_win: curses.window, menu_pad: curses.window, ui_state: object
 ) -> None:
     if old_idx == new_idx:  # No-op
@@ -405,9 +405,9 @@ def highlight_line(
         menu_pad.chgat(old_idx, 1, menu_pad.getmaxyx()[1] - 4, color_old)
         menu_pad.chgat(new_idx, 1, menu_pad.getmaxyx()[1] - 4, color_new)
 
-    elif ui_state.current_window == 2:
-        menu_pad.chgat(old_idx, 1, menu_pad.getmaxyx()[1] - 4, get_node_color(old_idx))
-        menu_pad.chgat(new_idx, 1, menu_pad.getmaxyx()[1] - 4, get_node_color(new_idx, reverse=True))
+    elif ui_state.current_window == 2:  # noqa: PLR2004
+        menu_pad.chgat(old_idx, 1, menu_pad.getmaxyx()[1] - 4, get_node_color(old_idx))  # noqa: PLR2004
+        menu_pad.chgat(new_idx, 1, menu_pad.getmaxyx()[1] - 4, get_node_color(new_idx, reverse=True))  # noqa: PLR2004
 
     menu_win.refresh()
 

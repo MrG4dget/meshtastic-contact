@@ -5,6 +5,27 @@ import shutil
 import subprocess
 import threading
 import time
+from typing import Any
+
+import contact.ui.default_config as config
+from contact.ui.contact_ui import (
+    add_notification,
+    draw_channel_list,
+    draw_messages_window,
+    draw_node_list,
+    draw_packetlog_win,
+)
+from contact.utilities.db_handler import (
+    get_name_from_database,
+    maybe_store_nodeinfo_in_db,
+    save_message_to_db,
+    update_node_info_in_db,
+)
+from contact.utilities.singleton import app_state, interface_state, menu_state, ui_state
+from contact.utilities.utils import (
+    add_new_message,
+    refresh_node_list,
+)
 
 # Debounce notification sounds so a burst of queued messages only plays once.
 _SOUND_DEBOUNCE_SECONDS = 0.8
@@ -19,7 +40,7 @@ def schedule_notification_sound(delay: float = _SOUND_DEBOUNCE_SECONDS) -> None:
     If more messages arrive before the delay elapses, the timer is reset.
     This prevents playing a sound for each message when a backlog flushes.
     """
-    global _sound_timer, _last_sound_request
+    global _sound_timer, _last_sound_request  # noqa: PLW0603
 
     now = time.monotonic()
     with _sound_timer_lock:
@@ -43,29 +64,6 @@ def schedule_notification_sound(delay: float = _SOUND_DEBOUNCE_SECONDS) -> None:
         _sound_timer = threading.Timer(delay, _fire, args=(now,))
         _sound_timer.daemon = True
         _sound_timer.start()
-
-
-from typing import Any
-
-import contact.ui.default_config as config
-from contact.ui.contact_ui import (
-    add_notification,
-    draw_channel_list,
-    draw_messages_window,
-    draw_node_list,
-    draw_packetlog_win,
-)
-from contact.utilities.db_handler import (
-    get_name_from_database,
-    maybe_store_nodeinfo_in_db,
-    save_message_to_db,
-    update_node_info_in_db,
-)
-from contact.utilities.singleton import app_state, interface_state, menu_state, ui_state
-from contact.utilities.utils import (
-    add_new_message,
-    refresh_node_list,
-)
 
 
 def play_sound():
@@ -108,7 +106,7 @@ def play_sound():
         logging.error(f"Unexpected error: {e}")
 
 
-def on_receive(packet: dict[str, Any], interface: Any) -> None:
+def on_receive(packet: dict[str, Any], interface: Any) -> None:  # noqa: PLR0915, PLR0912
     """
     Handles an incoming packet from a Meshtastic interface.
 
@@ -119,14 +117,14 @@ def on_receive(packet: dict[str, Any], interface: Any) -> None:
     with app_state.lock:
         # Update packet log
         ui_state.packet_buffer.append(packet)
-        if len(ui_state.packet_buffer) > 20:
+        if len(ui_state.packet_buffer) > 20:  # noqa: PLR2004
             # Trim buffer to 20 packets
-            ui_state.packet_buffer = ui_state.packet_buffer[-20:]
+            ui_state.packet_buffer = ui_state.packet_buffer[-20:]  # noqa: PLR2004
 
         if ui_state.display_log:
             draw_packetlog_win()
 
-            if ui_state.current_window == 4:
+            if ui_state.current_window == 4:  # noqa: PLR2004
                 menu_state.need_redraw = True
         try:
             if "decoded" not in packet:
@@ -161,7 +159,7 @@ def on_receive(packet: dict[str, Any], interface: Any) -> None:
                 else:
                     channel_number = 0
 
-                if packet["to"] == interface_state.myNodeNum:
+                if packet["to"] == interface_state.my_node_num:
                     if packet["from"] in ui_state.channel_list:
                         pass
                     else:

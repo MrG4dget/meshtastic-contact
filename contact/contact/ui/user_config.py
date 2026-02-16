@@ -1,7 +1,7 @@
 import curses
 import json
 import os
-from typing import Any, Optional
+from typing import Any
 
 import contact.ui.default_config as config
 from contact.ui.colors import COLOR_MAP, get_color, setup_colors
@@ -19,8 +19,8 @@ field_mapping, help_text = parse_ini_file(translation_file)
 translation_language = config.language
 
 
-def reload_translations(language: Optional[str] = None) -> None:
-    global translation_file, field_mapping, help_text, translation_language
+def reload_translations(language: str | None = None) -> None:
+    global translation_file, field_mapping, help_text, translation_language  # noqa: PLW0603
     target_language = language or config.language
     translation_file = config.get_localisation_file(target_language)
     field_mapping, help_text = parse_ini_file(translation_file)
@@ -51,7 +51,7 @@ def lookup_app_settings_label(full_key: str, fallback: str) -> str:
     if label:
         return label
     parts = full_key.split(".")
-    if len(parts) >= 2 and parts[1].startswith("COLOR_CONFIG_"):
+    if len(parts) >= 2 and parts[1].startswith("COLOR_CONFIG_"):  # noqa: PLR2004
         unified_key = ".".join([parts[0], "color_config"] + parts[2:])
         return field_mapping.get(unified_key, fallback)
     return fallback
@@ -112,10 +112,10 @@ def edit_color_pair(key: str, display_label: str, current_value: list[str]) -> l
     return [fg_color, bg_color]
 
 
-def edit_value(key: str, display_label: str, current_value: str) -> str:
+def edit_value(key: str, display_label: str, current_value: str) -> str:  # noqa: PLR0911, PLR0912, PLR0915
     w = get_effective_width()
-    height = 10
-    input_width = w - 16  # Allow space for "New Value: "
+    height = 10  # noqa: PLR2004
+    input_width = w - 16  # Allow space for "New Value: "  # noqa: PLR2004
     start_y = (curses.LINES - height) // 2
     start_x = max(0, (curses.COLS - w) // 2)
 
@@ -134,11 +134,11 @@ def edit_value(key: str, display_label: str, current_value: str) -> str:
     )
     edit_win.addstr(3, 2, t("ui.label.current_value", default="Current Value:"), get_color("settings_default"))
 
-    wrap_width = w - 4  # Account for border and padding
+    wrap_width = w - 4  # Account for border and padding  # noqa: PLR2004
     wrapped_lines = [current_value[i : i + wrap_width] for i in range(0, len(current_value), wrap_width)]
 
-    for i, line in enumerate(wrapped_lines[:4]):  # Limit display to fit the window height
-        edit_win.addstr(4 + i, 2, line, get_color("settings_default"))
+    for i, line in enumerate(wrapped_lines[:4]):  # Limit display to fit the window height  # noqa: PLR2004
+        edit_win.addstr(4 + i, 2, line, get_color("settings_default"))  # noqa: PLR2004
 
     edit_win.refresh()
 
@@ -146,7 +146,9 @@ def edit_value(key: str, display_label: str, current_value: str) -> str:
     if key == "theme":
         # Load theme names dynamically from the JSON
         theme_options = [
-            k.split("_", 2)[2].lower() for k in config.loaded_config.keys() if k.startswith("COLOR_CONFIG")
+            k.split("_", 2)[2].lower()
+            for k in config.loaded_config.keys()
+            if k.startswith("COLOR_CONFIG")  # noqa: PLR2004
         ]
         return get_list_input(
             t("ui.prompt.select_value", default="Select {label}", label=display_label),
@@ -177,12 +179,12 @@ def edit_value(key: str, display_label: str, current_value: str) -> str:
         return get_list_input(display_label, current_value, sound_options)
 
     # Standard Input Mode (Scrollable)
-    edit_win.addstr(7, 2, t("ui.label.new_value", default="New Value: "), get_color("settings_default"))
+    edit_win.addstr(7, 2, t("ui.label.new_value", default="New Value: "), get_color("settings_default"))  # noqa: PLR2004
     curses.curs_set(1)
 
     scroll_offset = 0  # Determines which part of the text is visible
     user_input = ""
-    input_position = (7, 13)  # Tuple for row and column
+    input_position = (7, 13)  # Tuple for row and column  # noqa: PLR2004
     row, col = input_position  # Unpack tuple
 
     while True:
@@ -205,9 +207,9 @@ def edit_value(key: str, display_label: str, current_value: str) -> str:
                 get_color("settings_default", bold=True),
             )
             edit_win.addstr(3, 2, t("ui.label.current_value", default="Current Value:"), get_color("settings_default"))
-            for i, line in enumerate(wrapped_lines[:4]):
-                edit_win.addstr(4 + i, 2, line, get_color("settings_default"))
-            edit_win.addstr(7, 2, t("ui.label.new_value", default="New Value: "), get_color("settings_default"))
+            for i, line in enumerate(wrapped_lines[:4]):  # noqa: PLR2004
+                edit_win.addstr(4 + i, 2, line, get_color("settings_default"))  # noqa: PLR2004
+            edit_win.addstr(7, 2, t("ui.label.new_value", default="New Value: "), get_color("settings_default"))  # noqa: PLR2004
 
         visible_text = user_input[scroll_offset : scroll_offset + input_width]
         edit_win.addstr(row, col, " " * input_width, get_color("settings_default"))
@@ -246,7 +248,7 @@ def edit_value(key: str, display_label: str, current_value: str) -> str:
     return user_input if user_input else current_value
 
 
-def display_menu() -> tuple[Any, Any, list[str]]:
+def display_menu() -> tuple[Any, Any, list[str]]:  # noqa: PLR0915
     """
     Render the configuration menu with a Save button directly added to the window.
     """
@@ -264,9 +266,9 @@ def display_menu() -> tuple[Any, Any, list[str]]:
         options = []  # Fallback in case of unexpected data types
 
     # Calculate dynamic dimensions for the menu
-    min_help_window_height = 6
+    min_help_window_height = 6  # noqa: PLR2004
     max_menu_height = curses.LINES
-    menu_height = min(max_menu_height - min_help_window_height, num_items + 5)
+    menu_height = min(max_menu_height - min_help_window_height, num_items + 5)  # noqa: PLR2004
     num_items = len(options)
     w = get_effective_width()
     start_y = (curses.LINES - menu_height) // 2 - (min_help_window_height // 2)
@@ -286,9 +288,9 @@ def display_menu() -> tuple[Any, Any, list[str]]:
 
     # Display the menu path
     header = get_app_settings_header(menu_state.menu_path)
-    if len(header) > w - 4:
-        header = header[: w - 7] + "..."
-    menu_win.addstr(1, 2, header, get_color("settings_breadcrumbs", bold=True))
+    if len(header) > w - 4:  # noqa: PLR2004
+        header = header[: w - 7] + "..."  # noqa: PLR2004
+    menu_win.addstr(1, 2, header, get_color("settings_breadcrumbs", bold=True))  # noqa: PLR2004
 
     # Populate the pad with menu options
     for idx, key in enumerate(options):
@@ -302,15 +304,15 @@ def display_menu() -> tuple[Any, Any, list[str]]:
             display_key = lookup_app_settings_label(full_key, key)
         else:
             display_key = key
-        display_key = f"{display_key}"[: w // 2 - 2]
-        display_value = f"{value}"[: w // 2 - 8]
+        display_key = f"{display_key}"[: w // 2 - 2]  # noqa: PLR2004
+        display_value = f"{value}"[: w // 2 - 8]  # noqa: PLR2004
 
         color = get_color("settings_default", reverse=(idx == menu_state.selected_index))
-        menu_pad.addstr(idx, 0, f"{display_key:<{w // 2 - 2}} {display_value}".ljust(w - 8), color)
+        menu_pad.addstr(idx, 0, f"{display_key:<{w // 2 - 2}} {display_value}".ljust(w - 8), color)  # noqa: PLR2004
 
     # Add Save button to the main window
     if menu_state.show_save_option:
-        save_position = menu_height - 2
+        save_position = menu_height - 2  # noqa: PLR2004
         save_label = t("ui.save_changes", default=save_option)
         menu_win.addstr(
             save_position,
@@ -323,20 +325,20 @@ def display_menu() -> tuple[Any, Any, list[str]]:
     menu_pad.refresh(
         menu_state.start_index[-1],
         0,
-        menu_win.getbegyx()[0] + 3,
-        menu_win.getbegyx()[1] + 4,
-        menu_win.getbegyx()[0] + 3 + menu_win.getmaxyx()[0] - 5 - (2 if menu_state.show_save_option else 0),
-        menu_win.getbegyx()[1] + menu_win.getmaxyx()[1] - 4,
+        menu_win.getbegyx()[0] + 3,  # noqa: PLR2004
+        menu_win.getbegyx()[1] + 4,  # noqa: PLR2004
+        menu_win.getbegyx()[0] + 3 + menu_win.getmaxyx()[0] - 5 - (2 if menu_state.show_save_option else 0),  # noqa: PLR2004
+        menu_win.getbegyx()[1] + menu_win.getmaxyx()[1] - 4,  # noqa: PLR2004
     )
 
     max_index = num_items + (1 if menu_state.show_save_option else 0) - 1
-    visible_height = menu_win.getmaxyx()[0] - 5 - (2 if menu_state.show_save_option else 0)
+    visible_height = menu_win.getmaxyx()[0] - 5 - (2 if menu_state.show_save_option else 0)  # noqa: PLR2004
 
     draw_arrows(menu_win, visible_height, max_index, menu_state.start_index, menu_state.show_save_option)
 
     # Draw help window below the menu
-    global max_help_lines
-    remaining_space = curses.LINES - (start_y + menu_height + 2)
+    global max_help_lines  # noqa: PLW0603
+    remaining_space = curses.LINES - (start_y + menu_height + 2)  # noqa: PLR2004
     max_help_lines = max(remaining_space, 1)
     transformed_path = get_app_settings_help_path_parts(menu_state.menu_path)
     selected_option = (
@@ -375,7 +377,7 @@ def update_app_settings_help(menu_win: curses.window, options: list[str]) -> Non
     )
 
 
-def json_editor(stdscr: curses.window, menu_state: Any) -> None:
+def json_editor(stdscr: curses.window, menu_state: Any) -> None:  # noqa: PLR0912, PLR0915
     menu_state.selected_index = 0  # Track the selected option
     made_changes = False  # Track if any changes were made
 
@@ -466,14 +468,14 @@ def json_editor(stdscr: curses.window, menu_state: Any) -> None:
                 display_label = selected_key
                 if isinstance(menu_state.current_menu, dict):
                     path_for_label = (
-                        menu_state.menu_path[:-1]
+                        menu_state.menu_path[:-1]  # noqa: PLR2004
                         if menu_state.menu_path and menu_state.menu_path[-1] == str(selected_key)
                         else menu_state.menu_path
                     )
                     full_key = get_app_settings_key(path_for_label, selected_key)
                     display_label = lookup_app_settings_label(full_key, selected_key)
 
-                if isinstance(selected_data, list) and len(selected_data) == 2:
+                if isinstance(selected_data, list) and len(selected_data) == 2:  # noqa: PLR2004
                     # Edit color pair
                     old = selected_data
                     new_value = edit_color_pair(selected_key, display_label, selected_data)
@@ -484,7 +486,7 @@ def json_editor(stdscr: curses.window, menu_state: Any) -> None:
                     if new_value != old:
                         made_changes = True
 
-                elif isinstance(selected_data, (dict, list)):
+                elif isinstance(selected_data, dict | list):
                     # Navigate into nested data
                     menu_state.current_menu = selected_data
                     menu_state.selected_index = 0  # Reset the selected index
@@ -520,7 +522,7 @@ def json_editor(stdscr: curses.window, menu_state: Any) -> None:
             # menu_state.selected_index = menu_state.menu_index[-1]
 
             # Navigate back in the menu
-            if len(menu_state.menu_path) > 2:
+            if len(menu_state.menu_path) > 2:  # noqa: PLR2004
                 menu_state.menu_path.pop()
                 menu_state.start_index.pop()
                 menu_state.current_menu = data
