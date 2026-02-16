@@ -108,13 +108,13 @@ def get_time_val_units(time_delta):
     value = 0
     unit = ""
 
-    if time_delta.days > DAYS_IN_YEAR:
+    if time_delta.days >= DAYS_IN_YEAR:
         value = time_delta.days // DAYS_IN_YEAR
         unit = "y"
-    elif time_delta.days > DAYS_IN_MONTH:
+    elif time_delta.days >= DAYS_IN_MONTH:
         value = time_delta.days // DAYS_IN_MONTH
         unit = "mon"
-    elif time_delta.days > DAYS_IN_WEEK:
+    elif time_delta.days >= DAYS_IN_WEEK:
         value = time_delta.days // DAYS_IN_WEEK
         unit = "w"
     elif time_delta.days > 0:
@@ -179,8 +179,10 @@ def add_new_message(channel_id, prefix, message):
     ui_state.all_messages[channel_id].append((f"{ts_str}{prefix}", message))
 
 
-def parse_protobuf(packet: dict) -> str | dict:  # noqa: PLR0911
+def parse_protobuf(packet: dict) -> str | dict:  # noqa: PLR0911, PLR0912
     """Attempt to parse a decoded payload using the registered protobuf handler."""
+    if not packet:
+        return None
     try:
         decoded = packet.get("decoded") or {}
         portnum = decoded.get("portnum")
