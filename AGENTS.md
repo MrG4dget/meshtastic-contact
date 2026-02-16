@@ -91,3 +91,4 @@ See `docs/agents/TOOLING.md` for linkable, up-to-date pointers to each tool’s 
 - **Shared Knowledge**: Check `knowledge/` for architectural insights.
 - [KI: Governance Architecture](knowledge/governance-pack-architecture/artifact.md)
 - [KI: Meshtastic Contact Project Mission](knowledge/meshtastic-contact-project-mission/artifact.md)
+- [KI: Windows Line Endings & Sync Shims Loop](knowledge/windows-line-endings-shim-loop/artifact.md)
