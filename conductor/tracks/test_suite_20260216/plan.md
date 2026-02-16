@@ -10,10 +10,10 @@
 - [x] Task: Write unit tests for `db_handler.py` covering node info updates and name retrieval abde011
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Unit Tests for db_handler.py' (Protocol in workflow.md)
 
-## Phase 3: Unit Tests for utils.py
+## Phase 3: Unit Tests for utils.py [checkpoint: ab27e4f]
 - [x] Task: Write unit tests for `utils.py` channel and node list processing 6f092e5
 - [x] Task: Write unit tests for `utils.py` formatting and helper functions 9fa3f3c
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Unit Tests for utils.py' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Unit Tests for utils.py' (Protocol in workflow.md)
 
 ## Phase 4: Unit Tests for config_io.py
 - [ ] Task: Write unit tests for `config_io.py` YAML export logic
