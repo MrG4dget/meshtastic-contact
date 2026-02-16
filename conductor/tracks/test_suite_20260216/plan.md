@@ -16,6 +16,6 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Unit Tests for utils.py' (Protocol in workflow.md)
 
 ## Phase 4: Unit Tests for config_io.py
-- [~] Task: Write unit tests for `config_io.py` YAML export logic
-- [ ] Task: Write unit tests for `config_io.py` YAML import logic
+- [x] Task: Write unit tests for `config_io.py` YAML export logic 4501978
+- [x] Task: Write unit tests for `config_io.py` YAML import logic 4501978
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Unit Tests for config_io.py' (Protocol in workflow.md)
