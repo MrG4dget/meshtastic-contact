@@ -6,6 +6,7 @@
 ## Key Libraries and Frameworks
 - **Meshtastic (Python SDK)**: The core library for interacting with Meshtastic hardware and the mesh network.
 - **Curses**: Used for building the keyboard-driven terminal user interface. windows-curses is used for compatibility on Windows systems.
+- **PyYAML**: Used for importing and exporting node configurations.
 
 ## Data and Configuration
 - **SQLite**: Used for persistent storage of message history and node data.
@@ -16,3 +17,4 @@
 - **Docker**: Provides a containerized environment for consistent deployment across different platforms.
 - **Ruff**: Employed for linting and code formatting to maintain code quality.
 - **Pytest**: Used as the testing framework.
+- **pytest-cov**: Used for generating code coverage reports.
