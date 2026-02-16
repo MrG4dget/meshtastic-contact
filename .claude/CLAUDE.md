@@ -11,4 +11,3 @@ Canonical agent instructions live in `../AGENTS.md` and `../docs/agents/`.
 ## Pointers
 - Governance detail: `../docs/agents/GOVERNANCE.md`
 - Tooling notes: `../docs/agents/TOOLING.md`
-

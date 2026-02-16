@@ -10,7 +10,12 @@ description: Repo-wide governance rules for AI agents. Canonical source is AGENT
 Follow the canonical instructions in `AGENTS.md`.
 
 ## Non-negotiables
-- Edit canonical sources only (`AGENTS.md`, `docs/agents/**`, `.agents/skills/**`).
+- Edit canonical sources only (`AGENTS.md`, `docs/agents/**`, `.agents/skills/**`, `.agents/workflows/**`).
 - Regenerate shims after governance/skill changes: `python scripts/agents/sync_shims.py`.
-- Validate: `python ci/validate_agent_assets.py`.
+- **Prompt Sync**: Always prompt the user or acknowledge that `sync_shims.py` was run when modifying shims (especially on Windows).
+- Validate changes: `python ci/validate_agent_assets.py`.
 
+## Proactive Maintenance
+- **Knowledge**: Check `knowledge/` for context before starting. Maintain KIs for new insights per `docs/agents/KNOWLEDGE_SUBAGENT.md`.
+- **Workflows**: Use `.agent/workflows/` for standard tasks (e.g., `validate-agent-assets.md` for CI).
+- **Documentation**: Sync `docs/agents/` if governance, skills, or shims are modified.

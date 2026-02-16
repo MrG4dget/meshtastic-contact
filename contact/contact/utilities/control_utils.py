@@ -1,0 +1,19 @@
+import re
+
+
+def transform_menu_path(menu_path: list[str]) -> list[str]:
+    """Applies path replacements and normalizes entries in the menu path."""
+    path_replacements = {"Radio Settings": "config", "Module Settings": "module"}
+
+    transformed_path: list[str] = []
+    for p in menu_path[1:]:  # Skip 'Main Menu'
+        # Apply fixed replacements
+        part = path_replacements.get(p, p)
+
+        # Normalize entries like "Channel 1", "Channel 2", etc.
+        if re.match(r"Channel\s+\d+", part, re.IGNORECASE):
+            part = "channel"
+
+        transformed_path.append(part)
+
+    return transformed_path

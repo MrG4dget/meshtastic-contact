@@ -1,0 +1,12 @@
+{
+    "title": "Windows Line Endings & Sync Shims Loop",
+    "summary": "Documenting the cause and fix for infinite loops in pre-commit hooks caused by CRLF vs LF conflicts on Windows.",
+    "tags": [
+        "windows",
+        "git",
+        "pre-commit",
+        "line-endings",
+        "sync-shims"
+    ],
+    "created_at": "2026-02-16T10:32:16+01:00"
+}

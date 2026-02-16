@@ -6,4 +6,3 @@
 @../docs/agents/GOVERNANCE.md
 @../docs/agents/TOOLING.md
 @../docs/agents/KNOWLEDGE_SUBAGENT.md
-

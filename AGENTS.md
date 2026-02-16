@@ -12,7 +12,7 @@ This repo also includes **tool-specific shims** so Codex, Claude Code, Gemini CL
 
 ## Tool entrypoints (what reads what)
 
-- **OpenAI Codex**: reads `AGENTS.md` (cascades by directory; nearest file wins).  
+- **OpenAI Codex**: reads `AGENTS.md` (cascades by directory; nearest file wins).
 - **Claude Code**: reads `CLAUDE.md` (project memory) in either `./CLAUDE.md` or `./.claude/CLAUDE.md`.
 - **Gemini CLI**: reads `.gemini/GEMINI.md` (supports `@` imports).
 - **Google Antigravity IDE**: reads workspace rules in `.agent/rules/` and can use `.agent/skills/`.
@@ -63,7 +63,12 @@ If you modify:
 
 …then update the relevant docs in `docs/agents/` in the same PR.
 
-### 4) Skill authoring rules
+### 4) Shim sync rule
+
+- If you modify canonical sources (`AGENTS.md`, `docs/agents/**`, `.agents/skills/**`, `.agents/workflows/**`), you MUST run `python scripts/agents/sync_shims.py`.
+- **Windows Users**: On Windows, shims are mirrored via copying. Prompt the user to run the sync script if you cannot run it yourself, as changes won't be visible to the IDE otherwise.
+
+## Skill authoring rules
 
 - A skill is a folder with **exactly one** `SKILL.md` containing YAML front matter with:
   - `name`
@@ -85,3 +90,5 @@ See `docs/agents/TOOLING.md` for linkable, up-to-date pointers to each tool’s 
 - **OpenCode Orchestrator**: [.agents/skills/opencode-orchestrator/SKILL.md](.agents/skills/opencode-orchestrator/SKILL.md) (Coordinates multi-model tasks).
 - **Shared Knowledge**: Check `knowledge/` for architectural insights.
 - [KI: Governance Architecture](knowledge/governance-pack-architecture/artifact.md)
+- [KI: Meshtastic Contact Project Mission](knowledge/meshtastic-contact-project-mission/artifact.md)
+- [KI: Windows Line Endings & Sync Shims Loop](knowledge/windows-line-endings-shim-loop/artifact.md)

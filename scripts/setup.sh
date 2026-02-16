@@ -19,11 +19,11 @@ fi
 
 # 3. Initial sync
 echo "Running initial shim sync..."
-python3 scripts/agents/sync_shims.py
+python scripts/agents/sync_shims.py
 
 # 4. Initial validation
 echo "Running initial validation..."
-python3 ci/validate_agent_assets.py
+python ci/validate_agent_assets.py
 
 echo "--- Setup Complete ---"
 echo "You can now run 'pytest' to execute unit tests."
