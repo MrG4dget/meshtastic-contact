@@ -12,7 +12,7 @@
 
 ## Phase 3: Unit Tests for utils.py
 - [x] Task: Write unit tests for `utils.py` channel and node list processing 6f092e5
-- [~] Task: Write unit tests for `utils.py` formatting and helper functions
+- [x] Task: Write unit tests for `utils.py` formatting and helper functions 9fa3f3c
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Unit Tests for utils.py' (Protocol in workflow.md)
 
 ## Phase 4: Unit Tests for config_io.py
